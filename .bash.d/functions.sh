@@ -437,6 +437,16 @@ cdwhich(){
     cd "$directory" || return 1
 }
 
+whichall(){
+    local bin="$1"
+    shift || :
+    which -a "$bin" |
+    while read -r bin; do
+        echo -n "$bin: "
+        "$bin" "$@"
+    done
+}
+
 add_etc_host(){
     local host_line="$*"
     # $sudo is set in .bashrc if needed
