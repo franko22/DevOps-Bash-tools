@@ -698,6 +698,7 @@ etc.
   - `github_actions_workflow_runs.sh` - lists GitHub Actions workflow runs for a given workflow id or name
   - `github_actions_workflows_status.sh` - lists all GitHub Actions workflows and their statuses for a given repo
   - `github_actions_workflows_state.sh` - lists GitHub Actions workflows enabled/disabled states (GitHub now disables workflows after 6 months without a commit)
+  - `github_actions_workflows_disabled.sh` - lists GitHub Actions workflows that are disabled. Combine with `github_foreach_repo.sh` to scan all repos to find disabled workflows
   - `github_actions_workflow_enable.sh` - enables a given GitHub Actions workflow
   - `github_actions_workflows_enable_all.sh` - enables all GitHub Actions workflows in a given repo. Useful to undo GitHub disabling all workflows in a repo after 6 months without a commit
   - `github_actions_workflows_trigger_all.sh` - triggers all workflows for the given repo
@@ -949,6 +950,7 @@ etc.
   - `terraform_cloud_varset_delete_vars.sh` - deletes one or more Terraform variables in a given variable set
 - `terraform_*.sh` - [Terraform](https://www.terraform.io/) scripts:
   - `terraform_import.sh` - finds given resource type in `./*.tf` code or Terraform plan output that are not in Terraform state and imports them
+  - `terraform_import_aws_sso_permission_sets.sh` - finds all `aws_ssoadmin_permission_set` in `./*.tf` code, resolves the ARNs and imports them to Terraform state
   - `terraform_import_github_repos.sh` - finds all `github_repository` in `./*.tf` code or Terraform plan output that are not in Terraform state and imports them. See also `github_repos_not_in_terraform.sh`
   - `terraform_import_github_team.sh` - imports a given GitHub team into a given Terraform state resource, by first querying the GitHub API for the team ID needed to import into Terraform
   - `terraform_import_github_teams.sh` - finds all `github_team` in `./*.tf` code or Terraform plan output that are not in Terraform state, then queries the GitHub API for their IDs and imports them. See also `github_teams_not_in_terraform.sh`
