@@ -134,7 +134,7 @@ type isExcluded &>/dev/null || . "$srcdir_bash_tools_utils/excluded.sh"
 check_bin(){
     local bin="${1:-}"
     if ! type -P "$bin" &>/dev/null; then
-        echo "command '$bin' not found in \$PATH ($PATH)"
+        echo "command '$bin' not found in \$PATH ($PATH)" >&2
         if is_CI; then
             timestamp "Running in CI, searching entire system for '$bin'"
             find / -type f -name "$bin" 2>/dev/null
@@ -146,6 +146,7 @@ check_bin(){
 
 check_output(){
     local expected="$1"
+    # shellcheck disable=SC2178
     local cmd="${*:2}"
     # do not 2>&1 it will cause indeterministic output even with python -u so even tail -n1 won't work
     echo "check_output:  $cmd"
@@ -175,7 +176,7 @@ check_exit_code(){
         fi
     done
     if [ "$failed" != 0 ]; then
-        echo "WRONG EXIT CODE RETURNED! Expected: '$expected_exit_codes', got: '$exit_code'"
+        echo "WRONG EXIT CODE RETURNED! Expected: '$expected_exit_codes', got: '$exit_code'" >&2
         return 1
     fi
 }
@@ -303,6 +304,7 @@ curl_version(){
     curl --version | awk '{print $2; exit}' | grep -Eom1 '[[:digit:]]+\.[[:digit:]]+'
 }
 is_curl_min_version(){
+    # shellcheck disable=SC2178
     local target_version="$1"
     local curl_version
     curl_version="$(curl_version)"
@@ -318,6 +320,7 @@ go_version(){
 }
 
 is_golang_min_version(){
+    # shellcheck disable=SC2178
     local target_version="$1"
     local go_version
     go_version="$(go_version)"
@@ -625,6 +628,7 @@ run_test_versions(){
     test_versions_ordered="$test_versions"
     if [ -z "${NO_VERSION_REVERSE:-}" ]; then
         # tail -r works on Mac but not Travis CI Ubuntu Trusty
+        # shellcheck disable=SC2119
         test_versions_ordered="$(tr ' ' '\n' <<< "$test_versions" | tac | tr '\n' ' ')"
     fi
     local start_time
@@ -634,7 +638,7 @@ run_test_versions(){
         run_count=0
         eval "$test_func" "$version"
         if [ $run_count -eq 0 ]; then
-            echo "NO TEST RUNS DETECTED!"
+            echo "NO TEST RUNS DETECTED!" >&2
             exit 1
         fi
         ((total_run_count+=run_count))
@@ -752,21 +756,21 @@ when_ports_available(){
     local ports="${*:2}"
     local retry_interval="${RETRY_INTERVAL:-1}"
     if [ -z "$host" ]; then
-        echo "$FUNCNAME: host \$2 not set"
+        echo "$FUNCNAME: host \$2 not set" >&2
         exit 1
     elif [ -z "$ports" ]; then
-        echo "$FUNCNAME: ports \$3 not set"
+        echo "$FUNCNAME: ports \$3 not set" >&2
         exit 1
     else
         for port in $ports; do
             if ! [[ "$port" =~ ^[[:digit:]]+$ ]]; then
-                echo "$FUNCNAME: invalid non-numeric port argument '$port'"
+                echo "$FUNCNAME: invalid non-numeric port argument '$port'" >&2
                 exit 1
             fi
         done
     fi
     if ! [[ "$retry_interval" =~ ^[[:digit:]]+$ ]]; then
-        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'"
+        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'" >&2
         exit 1
     fi
     # Mac nc doesn't have -z switch like Linux GNU version and we can't rely on one being found first in $PATH
@@ -832,21 +836,21 @@ when_ports_down(){
     local ports="${*:2}"
     local retry_interval="${RETRY_INTERVAL:-1}"
     if [ -z "$host" ]; then
-        echo "$FUNCNAME: host \$2 not set"
+        echo "$FUNCNAME: host \$2 not set" >&2
         return 1
     elif [ -z "$ports" ]; then
-        echo "$FUNCNAME: ports \$3 not set"
+        echo "$FUNCNAME: ports \$3 not set" >&2
         return 1
     else
         for port in $ports; do
             if ! [[ "$port" =~ ^[[:digit:]]+$ ]]; then
-                echo "$FUNCNAME: invalid non-numeric port argument '$port'"
+                echo "$FUNCNAME: invalid non-numeric port argument '$port'" >&2
                 return 1
             fi
         done
     fi
     if ! [[ "$retry_interval" =~ ^[[:digit:]]+$ ]]; then
-        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'"
+        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'" >&2
         return 1
     fi
     #local max_tries=$(($max_secs / $retry_interval))
@@ -856,11 +860,14 @@ when_ports_down(){
         nc_opts="-z"
     fi
     local nc_cmd="nc -v -w $retry_interval $nc_opts $host < /dev/null"
-    cmd=""
+    # shellcheck disable=SC2178
+    local cmd=""
     for x in $ports; do
+        # shellcheck disable=SC2178
         cmd="$cmd ! $nc_cmd $x &>/dev/null && "
     done
-    local cmd="${cmd% && }"
+    # shellcheck disable=SC2178
+    cmd="${cmd% && }"
     # shellcheck disable=SC2086
     plural_str $ports
     timestamp "waiting for up to $max_secs secs for port$plural '$ports' to go down, retrying at $retry_interval sec intervals"
@@ -906,14 +913,14 @@ when_url_content(){
     local args="${*:3}"
     local retry_interval="${RETRY_INTERVAL:-1}"
     if [ -z "$url" ]; then
-        echo "$FUNCNAME: url \$2 not set"
+        echo "$FUNCNAME: url \$2 not set" >&2
         exit 1
     elif [ -z "$expected_regex" ]; then
-        echo "$FUNCNAME: expected content \$3 not set"
+        echo "$FUNCNAME: expected content \$3 not set" >&2
         exit 1
     fi
     if ! [[ "$retry_interval" =~ ^[[:digit:]]+$ ]]; then
-        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'"
+        echo "$FUNCNAME: invalid non-numeric \$RETRY_INTERVAL '$retry_interval'" >&2
         exit 1
     fi
     #local max_tries=$(($max_secs / $retry_interval))
