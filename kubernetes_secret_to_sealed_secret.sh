@@ -25,15 +25,15 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Creates Kubernetes sealed secrets from all Kubernetes secrets in the current or given namespace
+Creates a Kubernetes sealed secret from a given secret in the current or given namespace
 
-Iterates all non-service-account-token secrets, and for each one:
-
-    - generates sealed secret yaml
-    - annotates existing secret to be able to be managed by sealed secrets
-    - creates sealed secret in the same namespace
+- generates sealed secret yaml
+- annotates existing secret to be able to be managed by sealed secrets
+- creates sealed secret in the same namespace
 
 Useful to migrate existing secrets to sealed secrets which are safe to commit to Git
+
+See kubernetes_secrets_to_sealed_secrets.sh to quickly migrate all your secrets to sealed secrets
 
 Use kubectl_secrets_download.sh to take a backup of secrets first
 
@@ -43,14 +43,20 @@ Requires kubectl and kubeseal to both be in the \$PATH and configured
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args="[<namespace> <context>]"
+usage_args="<secret_name> [<namespace> <context>]"
 
 help_usage "$@"
 
-#min_args 1 "$@"
+min_args 1 "$@"
 
-namespace="${1:-}"
-context="${2:-}"
+secret="$1"
+namespace="${2:-}"
+context="${3:-}"
+
+if [[ "$secret" =~ kubernetes\.io/service-account-token ]]; then
+    echo "WARNING: skipping touching secret '$secret' for safety"
+    exit 0
+fi
 
 kube_config_isolate
 
@@ -61,15 +67,19 @@ if [ -n "$namespace" ]; then
     kube_namespace "$namespace"
 fi
 
-kubectl get secrets |
-# don't touch the default generated service account tokens for safety
-grep -v kubernetes.io/service-account-token |
-# remove header
-grep -v '^NAME[[:space:]]' |
-awk '{print $1}' |
-while read -r secret; do
-    "$srcdir/kubernetes_secret_to_sealed_secret.sh" "$secret" ${namespace:+"$namespace"} ${context:+"$context"}
-    echo
-done
+yaml="sealed-secret-$secret.yaml"
 
-echo "Completed. Don't forget to commit all sealed-secrets-*.yaml to Git"
+timestamp "Generating sealed secret for secret '$secret'"
+
+kubectl get secret "$secret" -o yaml |
+kubeseal -o yaml > "$yaml"
+
+timestamp "Generated:  $yaml"
+
+timestamp "Annotating secret '$secret' to be managed by sealed-secrets controller"
+
+kubectl annotate secrets "$secret" 'sealedsecrets.bitnami.com/managed=true' --overwrite
+
+timestamp "Applying sealed secret '$secret'"
+
+kubectl apply -f "$yaml"
