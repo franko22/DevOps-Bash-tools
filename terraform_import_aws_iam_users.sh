@@ -22,7 +22,7 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Parses Terraform Plan for aws_iam_group additions and imports each one into Terraform state
+Parses Terraform Plan for aws_iam_user additions and imports each one into Terraform state
 
 If \$TERRAFORM_PRINT_ONLY is set to any value, prints the commands to stdout to collect so you can check, collect into a text file or pipe to a shell or further manipulate, ignore errors etc.
 
@@ -40,24 +40,19 @@ dir="${1:-.}"
 
 cd "$dir"
 
-#group_arn_mapping="$(aws iam list-groups | jq -r '.Groups[] | [.GroupName, .Arn] | @tsv' | column -t)"
-
 terraform plan -no-color |
-sed -n '/# aws_iam_group\..* will be created/,/}/ p' |
-awk '/# aws_iam_group/ {print $2};
+sed -n '/# aws_iam_user\..* will be created/,/}/ p' |
+#sed -n '/tags = {/,/}/d; p' |
+awk '/# aws_iam_user/ {print $2};
      /name/ {print $4}' |
 sed 's/^"//; s/"$//' |
 xargs -n2 echo |
 sed 's/\[/["/; s/\]/"]/' |
-while read -r group name; do
+while read -r user name; do
     [ -n "$name" ] || continue
-    timestamp "Importing group: $name"
-    #arn="$(awk "/^${name}[[:space:]]/{print \$2}" <<< "$group_arn_mapping")"
-    #if is_blank "$arn"; then
-    #    die "Failed to determine group ARN"
-    #fi
+    timestamp "Importing user: $name"
     # shellcheck disable=SC2178
-    cmd="terraform import '$group' '$name'"
+    cmd="terraform import '$user' '$name'"
     # shellcheck disable=SC2128
     echo "$cmd"
     if [ -z "${TERRAFORM_PRINT_ONLY:-}" ]; then
