@@ -41,6 +41,7 @@ amazon-sam-cli
 ansible
 ansible-lint
 argocd
+asdf
 #atomicparsley  # mp4 cli tool
 autoconf
 autojump
@@ -234,6 +235,7 @@ watch
 xz
 yamllint  # in brew-packages.txt
 youtube-dl
+zoom
 zsh
 
 # runtime only
