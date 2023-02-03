@@ -26,7 +26,7 @@ Finds live deprecated objects in the current Kubernetes cluster
 
 Dumps all Kubernetes objects from the current kubectl cluster context to a directory in /tmp and then runs Pluto against it to detect deprecated API objects affecting your Kubernetes cluster upgrades
 
-Requires 'kubectl' binary to be in the \$PATH and configured
+Requires 'kubectl' and 'pluto' binaries to be in the \$PATH and kubectl context configured and selected
 "
 
 # used by usage() in lib/utils.sh
@@ -45,7 +45,7 @@ dumpfile="$dir/all.yaml"
 mkdir -pv "$dir"
 
 timestamp "Dumping all live Kubernetes objects to $dumpfile (this will take a few minutes)"
-"$srcdir/kubectl_get_all.sh" -o yaml > "$dumpfile"
+"$srcdir/kubectl_get_all.sh" --all-namespaces -o yaml > "$dumpfile"
 echo >&2
 
 timestamp "Scanning dumped objects with Pluto"
