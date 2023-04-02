@@ -15,11 +15,12 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-
-go="${GO:-go}"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage(){
-    echo "Installs Golang tools, taking in to account library paths"
+    echo "Installs Golang tools not already installed"
+    echo
+    echo "Leverages adjacent golang_install.sh which takes in to account library paths etc"
     echo
     echo "Takes a list of go tool names as arguments or .txt files containing lists of tools (one per line)"
     echo
@@ -28,8 +29,8 @@ usage(){
     exit 3
 }
 
-for x in "$@"; do
-    case "$x" in
+for arg; do
+    case "$arg" in
         -*) usage
             ;;
     esac
@@ -62,32 +63,21 @@ fi
 
 go_tools="$(tr ' ' ' \n' <<< "$go_tools" | sort -u | tr '\n' ' ')"
 
-echo "Installing Golang tools"
+echo "Installing Golang tools that are not already installed"
 echo
 
-opts=""
-if [ -n "${TRAVIS:-}" ]; then
-    echo "running in quiet mode"
-    opts="-q"
-fi
-
-envopts=""
-if [ "$(uname -s)" = "Darwin" ]; then
-    if type -P brew &>/dev/null; then
-        # usually /usr/local
-        brew_prefix="$(brew --prefix)"
-        # needed to build Crypt::SSLeay
-        export OPENSSL_INCLUDE="$brew_prefix/opt/openssl/include"
-        export OPENSSL_LIB="$brew_prefix/opt/openssl/lib"
-        # need to send OPENSSL_INCLUDE and OPENSSL_LIB through sudo explicitly using prefix
-        envopts="OPENSSL_INCLUDE=$OPENSSL_INCLUDE OPENSSL_LIB=$OPENSSL_LIB"
-    fi
+if [ -n "${GOPATH:-}" ]; then
+    export PATH="$PATH:$GOPATH/bin"
 fi
 
 for go_tool in $go_tools; do
-    go_tool="${go_tool#http?://}"
-    echo "$envopts $go get $opts -u $go_tool"
-    # want splitting of opts and tools
-    # shellcheck disable=SC2086
-    eval $envopts "$go" get $opts -u "$go_tool"
+    go_bin="${go_tool##*/}"
+    path="$(type -P "$go_bin" 2>/dev/null || :)"
+    if [ -n "$path" ]; then
+        echo "go tool '$go_tool' ($go_bin => $path) already installed, skipping..."
+    else
+        echo "installing go tool '$go_tool'"
+        echo
+        "$srcdir/golang_install.sh" "$go_tool"
+    fi
 done

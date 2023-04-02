@@ -15,22 +15,25 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+go="${GO:-go}"
 
 usage(){
-    echo "Installs Golang tools not already installed"
-    echo
-    echo "Leverages adjacent golang_get_install.sh which takes in to account library paths etc"
+    echo "Installs Golang tools, taking in to account library paths"
     echo
     echo "Takes a list of go tool names as arguments or .txt files containing lists of tools (one per line)"
+    echo
+    echo "To skip Golang tools that fail to install, set this in environment:"
+    echo
+    echo "export GOLANG_SKIP_FAILURES=1"
     echo
     echo "usage: ${0##*} <list_of_tools>"
     echo
     exit 3
 }
 
-for arg; do
-    case "$arg" in
+for x in "$@"; do
+    case "$x" in
         -*) usage
             ;;
     esac
@@ -63,21 +66,39 @@ fi
 
 go_tools="$(tr ' ' ' \n' <<< "$go_tools" | sort -u | tr '\n' ' ')"
 
-echo "Installing Golang tools that are not already installed"
+echo "Installing Golang tools"
 echo
 
-if [ -n "${GOPATH:-}" ]; then
-    export PATH="$PATH:$GOPATH/bin"
+opts=""
+if [ -n "${TRAVIS:-}" ]; then
+    echo "running in quiet mode"
+    opts="-q"
+fi
+
+envopts=""
+if [ "$(uname -s)" = "Darwin" ]; then
+    if type -P brew &>/dev/null; then
+        # usually /usr/local
+        brew_prefix="$(brew --prefix)"
+        # needed to build Crypt::SSLeay
+        export OPENSSL_INCLUDE="$brew_prefix/opt/openssl/include"
+        export OPENSSL_LIB="$brew_prefix/opt/openssl/lib"
+        # need to send OPENSSL_INCLUDE and OPENSSL_LIB through sudo explicitly using prefix
+        envopts="OPENSSL_INCLUDE=$OPENSSL_INCLUDE OPENSSL_LIB=$OPENSSL_LIB"
+    fi
 fi
 
 for go_tool in $go_tools; do
-    go_bin="${go_tool##*/}"
-    path="$(type -P "$go_bin" 2>/dev/null || :)"
-    if [ -n "$path" ]; then
-        echo "go tool '$go_tool' ($go_bin => $path) already installed, skipping..."
-    else
-        echo "installing go tool '$go_tool'"
-        echo
-        "$srcdir/golang_get_install.sh" "$go_tool"
+    go_tool="${go_tool#http?://}"
+    if ! [[ "$go_tool" =~ @ ]]; then
+        go_tool+="@latest"
+    fi
+    echo "$envopts $go install $opts $go_tool"
+    # want splitting of opts and tools
+    # shellcheck disable=SC2086
+    if [ -n "${GOLANG_SKIP_FAILURES:-}" ]; then
+        set +eo pipefail
+        eval $envopts "$go" install $opts "$go_tool"
+        set +eu pipefail
     fi
 done
