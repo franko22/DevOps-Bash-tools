@@ -33,7 +33,8 @@ endif
 
 CODE_FILES := $(shell if type git >/dev/null 2>&1; then git ls-files | while read line; do test -f "$$line" || continue; echo "$$line"; done; fi)
 
-CPANM = cpanm
+CPANM := cpanm
+PIP := pip3
 
 FATPACKS_DIR := fatpacks
 
@@ -463,7 +464,7 @@ gem::
 
 .PHONY: gem-optional
 gem-optional::
-	find . -maxdepth 3 -path '*/setup/gem-requirements-optional.txt' | NO_FAIL=1 xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+	find . -maxdepth 3 -path '*/setup/gem-requirements-optional.txt' | NO_FAIL=1 PIP=$(PIP) xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
 
 .PHONY: npm
 npm::
@@ -476,12 +477,12 @@ npm-optional::
 
 .PHONY: pip
 pip::
-	find . -maxdepth 3 -path '*/requirements.txt' | xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+	find . -maxdepth 3 -path '*/requirements.txt' | PIP=$(PIP) xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
 	@$(MAKE) pip-optional
 
 .PHONY: pip-optional
 pip-optional::
-	find . -maxdepth 3 -path '*/requirements-optional.txt' | NO_FAIL=1 xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
+	find . -maxdepth 3 -path '*/requirements-optional.txt' | NO_FAIL=1 PIP=$(PIP) xargs $(BASH_TOOLS)/python_pip_install_if_absent.sh
 
 .PHONY: pip-user
 pip-user::
