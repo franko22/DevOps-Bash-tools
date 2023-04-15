@@ -50,11 +50,11 @@ if [ -n "${PYTHON:-}" ]; then
     python="$PYTHON"
 else
     #python="$(command -v "$python" || command -v "python3" || command -v "python2" || :)"
+    # XXX: bug, on new M1 Macs command -v appears to return 'python' where it is not installed, possibly inherited, whereas we need it to fail to fall through to python3
     #python="$(command -v python 2>/dev/null || :)"
-    # XXX: bug, on new M1 Macs command -v appears to return 'python' where it is not installed, possibly inherited, whereas command without -v returns blank to correctly fall through to python3
-    python="$(command python 2>/dev/null || :)"
-    python2="$(command -v python2 2>/dev/null || :)"
-    python3="$(command -v python3 2>/dev/null || :)"
+    python="$(type -P python 2>/dev/null || :)"
+    python2="$(type -P python2 2>/dev/null || :)"
+    python3="$(type -P python3 2>/dev/null || :)"
     if [ -z "$python" ]; then
         if [ -n "$python3" ]; then
             python="$python3"
@@ -158,7 +158,7 @@ check_python_pip_versions_match(){
                 pip="$pip3"
                 check_python_pip_versions_match
             elif [ "${python_version:0:1}" = 2 ]; then
-                if [ -n "$pip2" ]; then
+                if [ -n "${pip2:-}" ]; then
                     pip="$pip2"
                 else
                     # python2-pip removed from Ubuntu / Alpine repos :-(
@@ -168,7 +168,7 @@ check_python_pip_versions_match(){
                 check_python_pip_versions_match
             # switching to python3 will lead programs with /usr/env/python defaulting to python 2 to fail to find pip modules
             #elif [ "${python_version:0:1}" = 2 ] &&
-            #     [ -n "$python3" ]; then
+            #     [ -n "${python3:-}" ]; then
             #    python="$python3"
             #    check_python_pip_versions_match
             else
