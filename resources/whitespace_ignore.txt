@@ -13,6 +13,9 @@
 \.bz2$
 \.class$
 \.plist$
+\.png$
+\.jpg$
+\.jpeg$
 /target/
 /fatpacks/
 /build/
