@@ -12,6 +12,7 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Bash-tools&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Bash-tools)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Bash-tools&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Bash-tools)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Bash-tools&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_DevOps-Bash-tools)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_DevOps-Bash-tools&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=HariSekhon_DevOps-Bash-tools)
 [![Codiga Grade](https://api.codiga.io/project/8840/status/svg)](https://app.codiga.io/project/8840/dashboard)
 [![Codiga Score](https://api.codiga.io/project/8840/score/svg)](https://app.codiga.io/project/8840/dashboard)
 
@@ -67,16 +68,10 @@ awkward URLs more nicely replaced with shields.io
 [![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FDevOps-Bash-tools?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e53eaeea284e010982eaa6e&pipeline=DevOps-Bash-tools&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
 [![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/DevOps-Bash-tools/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/DevOps-Bash-tools)
 [![Semaphore](https://harisekhon.semaphoreci.com/badges/DevOps-Bash-tools.svg)](https://harisekhon.semaphoreci.com/projects/DevOps-Bash-tools)
-[![Wercker](https://app.wercker.com/status/c46a517909343e278c9ce354164394ae/s/master "wercker status")](https://app.wercker.com/harisekhon/DevOps-Bash-tools/runs)
 [![Buddy](https://img.shields.io/badge/Buddy-ready-1A86FD?logo=buddy)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/buddy.yml)
 [![Shippable](https://img.shields.io/badge/Shippable-legacy-lightgrey?logo=jfrog&label=Shippable)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/shippable.yml)
 [![Travis CI](https://img.shields.io/badge/TravisCI-ready-blue?logo=travis&label=Travis%20CI)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/.travis.yml)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed%20by-Hound-8E64B0.svg)](https://houndci.com)
-<!--
-Wercker throttles Shields.io resulting in "invalid response data" - do not use Shields.io until this is resolved
-
-[![Wercker](https://img.shields.io/wercker/ci/5e53ee68d1f86d0900f031dc/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/DevOps-Bash-tools/runs)
--->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.DevOps-Bash-tools?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=1&branchName=master)
 [![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/devops-bash-tools?logo=gitlab&label=GitLab%20CI)](https://gitlab.com/HariSekhon/DevOps-Bash-tools/pipelines)
@@ -98,7 +93,6 @@ Wercker throttles Shields.io resulting in "invalid response data" - do not use S
 [![Kics](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_alpine.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_alpine.yaml)
-[![Docker Build (CentOS)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_centos.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_centos.yaml)
 [![Docker Build (Debian)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_debian.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_debian.yaml)
 [![Docker Build (Fedora)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_fedora.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_fedora.yaml)
 [![Docker Build (Ubuntu)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_ubuntu.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/docker_bash_ubuntu.yaml)
@@ -108,28 +102,20 @@ Wercker throttles Shields.io resulting in "invalid response data" - do not use S
 [![Mac 11](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/mac_11.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/mac_11.yaml)
 [![Mac 12](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/mac_12.yaml/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions/workflows/mac_12.yaml)
 [![Ubuntu](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu%22)
-[![Ubuntu 14.04](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu%2014.04/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu+14.04%22)
-[![Ubuntu 16.04](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu%2016.04/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu+16.04%22)
-[![Ubuntu 18.04](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu%2018.04/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu+18.04%22)
 [![Ubuntu 20.04](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu%2020.04/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu+20.04%22)
+[![Ubuntu 22.04](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Ubuntu%2022.04/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Ubuntu+22.04%22)
 [![Debian](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Debian/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Debian%22)
-[![Debian 8](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Debian%208/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Debian+8%22)
 [![Debian 9](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Debian%209/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Debian+9%22)
 [![Debian 10](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Debian%2010/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Debian+10%22)
-[![CentOS](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/CentOS/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22CentOS%22)
-[![CentOS 7](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/CentOS%207/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22CentOS+7%22)
-[![CentOS 8](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/CentOS%208/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22CentOS+8%22)
+[![Debian 11](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Debian%2011/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Debian+11%22)
 [![Fedora](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Fedora/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Fedora%22)
 [![Alpine](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Alpine/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Alpine%22)
 [![Alpine 3](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Alpine%203/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Alpine+3%22)
-[![Python 2.7](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%202.7/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+2.7%22)
-[![Python 3.6](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.6/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.6%22)
 [![Python 3.7](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.7/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.7%22)
 [![Python 3.8](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.8/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.8%22)
 [![Python 3.9](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.9/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.9%22)
 [![Python 3.10](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.10/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.10%22)
-[![PyPy 2](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/PyPy%202/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22PyPy+2%22)
-[![PyPy 3](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/PyPy%203/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22PyPy+3%22)
+[![Python 3.11](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Python%203.11/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Python+3.11%22)
 <!--
 [![Self Hosted](https://github.com/HariSekhon/DevOps-Bash-tools/workflows/Self%20Hosted/badge.svg)](https://github.com/HariSekhon/DevOps-Bash-tools/actions?query=workflow%3A%22Self+Hosted%22)
 -->
@@ -224,7 +210,7 @@ make
 - [Git - GitHub, GitLab, Bitbucket, Azure DevOps](https://github.com/HariSekhon/DevOps-Bash-tools#git---github-gitlab-bitbucket-azure-devops) - scripts for Git local & mirror management, GitHub, GitLab & BitBucket APIs
 - [CI/CD - Continuous Integration / Continuous Delivery](https://github.com/HariSekhon/DevOps-Bash-tools#cicd---continuous-integration--continuous-deployment) - API scripts & build pipeline configs for most major CI systems:
   - Jenkins, Concourse, GoCD, TeamCity - one-touch boot & build
-  - Azure DevOps Pipelines, GitHub Actions Workflows, GitLab CI, BitBucket Pipelines, AppVeyor, BuildKite, Travis CI, Circle CI, Codefresh, CodeShip, Drone.io, Semaphore CI, Shippable, Wercker ...
+  - Azure DevOps Pipelines, GitHub Actions Workflows, GitLab CI, BitBucket Pipelines, AppVeyor, BuildKite, Travis CI, Circle CI, Codefresh, CodeShip, Drone.io, Semaphore CI, Shippable ...
   - Terraform Cloud, Octopus Deploy
   - Checkov / Bridgecrew Cloud
 - [Internet Services](https://github.com/HariSekhon/DevOps-Bash-tools#internet-services) - Cloudflare, DataDog, Digital Ocean, Kong API Gateway, GitGuardian, Jira, NGrok, Pingdom
