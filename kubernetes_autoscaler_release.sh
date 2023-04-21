@@ -46,5 +46,34 @@ else
     version="$( kubectl version -o json | jq -r '.serverVersion | .major + "." + .minor | gsub("[+]"; "")' )"
 fi
 
-curl -sS https://api.github.com/repos/kubernetes/autoscaler/releases |
-jq -r 'first(.[] | select(.tag_name | test("cluster-autoscaler-'"$version"'")) | .tag_name) | gsub("cluster-autoscaler-"; "v")'
+output="$(curl -sS https://api.github.com/repos/kubernetes/autoscaler/releases?per_page=100)"
+echo -n "Kubernetes version: "
+jq -r '
+    first(
+        .[] |
+        select(.tag_name | test("cluster-autoscaler-'"$version"'")) |
+        .tag_name
+    ) |
+    gsub("cluster-autoscaler-"; "")
+' <<< "$output"
+#echo
+#echo -n "Helm Chart: "
+#echo "Kubernetes versions / Charts:"
+#echo
+#jq -r '
+#    .[] |
+#    select(.tag_name | test("cluster-autoscaler")) |
+#    .tag_name |
+#    gsub("cluster-autoscaler-chart-"; "chart ") |
+#    gsub("cluster-autoscaler-"; "kubernetes ")
+#' <<< "$output"
+echo
+if type -P helm &>/dev/null; then
+    echo "Helm Chart: "
+    echo
+    if ! helm repo list | grep -q '^cluster-autoscaler[[:space:]]'; then
+        helm repo add cluster-autoscaler https://kubernetes.github.io/autoscaler
+    fi
+    helm search repo cluster-autoscaler -l |
+    grep -m 1 "$version"
+fi
