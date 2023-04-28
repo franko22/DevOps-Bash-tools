@@ -211,7 +211,7 @@ if [ "${K8S_NAMESPACE:-}" ]; then
     kubectl_opts+=(-n "$K8S_NAMESPACE")
 fi
 # TODO: might split this later
-oc_opts=("${kubectl_opts[@]}")
+oc_opts=("${kubectl_opts[@]:-}")
 
 # ============================================================================ #
 
@@ -236,9 +236,9 @@ k(){
     # more efficient than forking to check history every time
     if [ -n "$KUBERNETES_CLI" ]; then
         case "$KUBERNETES_CLI" in
-            kubectl)    opts+=("${kubectl_opts[@]}")
+            kubectl)    opts+=("${kubectl_opts[@]:-}")
                         ;;
-                 oc)    opts+=("${oc_opts[@]}")
+                 oc)    opts+=("${oc_opts[@]:-}")
                         ;;
                   *)    echo "invalid command '$KUBERNETES_CLI' listed in \$KUBERNETES_CLI (must be either 'kubectl' or 'oc' depending on whether you are using straight Kubernetes or OpenShift). Fix the variable or unset it to auto-detect when calling the k() function"
                         return
@@ -251,7 +251,7 @@ k(){
                 openshift)   command oc "${oc_opts[@]}" "$@"
                              export KUBERNETES_CLI=oc
                              ;;
-                    k8s|*)   command kubectl "${kubectl_opts[@]}" "$@"
+                    k8s|*)   command kubectl "${kubectl_opts[@]:-}" "$@"
                              export KUBERNETES_CLI=kubectl
                              ;;
         esac
@@ -267,19 +267,19 @@ krun(){
 }
 
 kexec(){
-    local line
+    local lines
     local name="${1//\//-}"
     if [ -z "$name" ]; then
         echo "usage: kexec <name>"
         return 1
     fi
     for ((i=0;i<100;i++)); do
-        line="$(k get po | grep -m1 -F "$name")"
-        if [ -z "$line" ]; then
-            echo "No pod matching name $name found!"
+        lines="$(k get po | grep -F "$name")"
+        if [ -z "$lines" ]; then
+            echo "No pods matching name $name found!"
             return 1
         fi
-        name="$(awk '/Running/{print $1}' <<< "$line")"
+        name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
         if [ -n "$name" ]; then
             break
         fi
@@ -288,6 +288,31 @@ kexec(){
     done
     echo kubectl exec -ti "\"$name\"" -- /bin/sh
     k exec -ti "$name" -- /bin/sh
+}
+
+klogs(){
+    local lines
+    local name="${1//\//-}"
+    shift || :
+    if [ -z "$name" ]; then
+        echo "usage: klogs <name>"
+        return 1
+    fi
+    for ((i=0;i<100;i++)); do
+        lines="$(k get po | grep -F "$name")"
+        if [ -z "$lines" ]; then
+            echo "No pods matching name $name found!"
+            return 1
+        fi
+        name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
+        if [ -n "$name" ]; then
+            break
+        fi
+        echo "waiting for pod to start running..."
+        sleep 1
+    done
+    echo kubectl logs "$@" "\"$name\""
+    k logs "$@" "$name"
 }
 
 # looks like both of these work on OpenShift context
@@ -365,7 +390,7 @@ watchpods(){
         echo
         echo 'Pods:'
         echo
-        kubectl " "${kubectl_opts[@]}" " get pods " "${k8s_get_pod_opts[@]}" " 2>&1
+        kubectl " "${kubectl_opts[@]:-}" " get pods " "${k8s_get_pod_opts[@]:-}" " 2>&1
         echo
     "
 }
