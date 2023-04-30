@@ -18,11 +18,8 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$srcdir/lib/utils.sh"
-
-# shellcheck disable=SC1090
-. "$srcdir/lib/git.sh"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
@@ -40,7 +37,6 @@ KONG_TOKEN (optional) if Admin API is secured with RBAC (Enterprise only)
 
 
 Can specify \$CURL_OPTS for options to pass to curl or provide them as arguments
-
 
 
 API Reference:
