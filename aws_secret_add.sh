@@ -17,7 +17,7 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$srcdir/lib/aws.sh"
 
 # shellcheck disable=SC2034,SC2154
@@ -36,7 +36,7 @@ Examples:
 
     ${0##*/} myname myvalue
 
-    ${0##*/} myname --description 'test credential'
+    ${0##*/} myname myvalue --description 'test credential'
 
     # For accessing in Jenkins via https://plugins.jenkins.io/aws-secrets-manager-credentials-provider/
     ${0##*/} mysecretstring --tags 'Key=jenkins:credentials:type,Value=string'
@@ -62,7 +62,8 @@ if ! [[ "${2:-}" =~ ^--[[:alpha:]]+ ]]; then
 fi
 shift || :
 
-if [ -z "$secret" ]; then
+if [ -z "${secret:-}" ]; then
+    echo "Secret not given as second arg"
     read_secret
 fi
 

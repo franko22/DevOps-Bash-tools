@@ -72,6 +72,8 @@ alias powc='poc -o wide'
 alias pocw='poc -o wide'
 alias kapply='k apply -f'
 alias kapp=kapply
+alias kget='k get'
+alias kedit='k edit'
 alias kdel='k delete'
 alias kdelf='kdel -f'
 alias wp=watchpods
@@ -290,6 +292,10 @@ kexec(){
     k exec -ti "$name" -- /bin/sh
 }
 
+klog(){
+    local name="$1"
+    k logs -f -n "$name" "deploy/$name"
+}
 klogs(){
     local lines
     local name="${1//\//-}"
