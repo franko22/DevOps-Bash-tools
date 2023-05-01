@@ -18,7 +18,7 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$srcdir/lib/utils.sh"
 
 # shellcheck disable=SC2034,SC2154
@@ -26,6 +26,17 @@ usage_description="
 Downloads and installs a binary from a given URL and extraction path to /usr/local/bin if run as root or ~/bin if run as user
 
 The URL can be parameterized with {os} and {arch} tokens to be replaced by the current OS (linux/darwin) or Architecture (amd64/arm)
+
+Environment overrides for {os} and {arch} if their values are Darwin, Linux, x86_64 or i386 respectively, in this order of priority:
+
+export OS_DARWIN=macOS    # because some packages use 'macOS' while others use 'darwin'
+export OS_LINUX=Linux     # because some packages titlecase this
+
+export ARCH_X86_64=amd64  # because some packages use 'amd64' instead of 'x86_64'
+export ARCH_X86=x86       # because some packages use 'x86' instead of 'i386'
+export ARCH_ARM64=ARM64   # because some packages use uppercase 'ARM64' instead of 'arm64'
+export ARCH_ARM=ARM       # because some packages use uppercase 'ARM' instead of 'arm'
+export ARCH_OVERRIDE=all  # because some packages use a random universal arch rather than 'x86_64' or 'i386'
 
 If a zip or tarball is given, will be unpacked in /tmp and the binary path specified will be copied to bin
 
