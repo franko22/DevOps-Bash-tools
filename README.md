@@ -579,6 +579,8 @@ etc.
 - `kustomize_parse_helm_charts.sh` - parses the [Helm](https://helm.sh/) charts from one or more `kustomization.yaml` files into TSV format for further shell pipe processing
 - `kustomize_install_helm_charts.sh` - installs the [Helm](https://helm.sh/) charts from one or more `kustomization.yaml` files the old fashioned Helm CLI way so that tools like [Nova](https://github.com/FairwindsOps/nova) can be used to detect outdated charts (used in [Kubernetes-configs](https://github.com/HariSekhon/Kubernetes-configs) repo's [CI](https://github.com/HariSekhon/Kubernetes-configs/actions/workflows/nova.yaml))
 - `kustomize_materialize.sh` - recursively materializes all `kustomization.yaml` to `kustomization.materialized.yaml` in the same directories for scanning with tools like [Pluto](https://github.com/FairwindsOps/pluto) to detect deprecated API objects inherited from embedded Helm charts. Parallelized for performance
+- `argocd_apps_sync.sh` - sync's all [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) apps matching an optional ERE regex filter on their names using the ArgoCD CLI
+- `argocd_apps_wait_sync.sh` - sync's all [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) apps matching an optional ERE regex filter on their names using the ArgoCD CLI's while also checking their health and operation
 - `pluto_detect_kustomize_materialize.sh` - recursively materializes all `kustomization.yaml` as above and runs [Pluto](https://github.com/FairwindsOps/pluto) on each directory to work around [this issue](https://github.com/FairwindsOps/pluto/issues/444)
 - `pluto_detect_kubectl_dump_objects.sh` - dumps all live Kubernetes objects to /tmp all can run [Pluto](https://github.com/FairwindsOps/pluto) to detect deprecated API objects on the cluster from any source
 - see also Google Kubernetes Engine scripts in the [GCP - Google Cloud Platform](https://github.com/HariSekhon/DevOps-Bash-tools/#gcp---google-cloud-platform) section above
@@ -704,7 +706,7 @@ etc.
   - `github_ssh_delete_public_keys.sh` - deletes given SSH keys from the currently authenticated GitHub account by key id or title regex match
   - `github_gpg_get_user_public_keys.sh` - fetches a given GitHub user's public GPG keys via the API
   - `github_generate_status_page.sh` - generates a [STATUS.md](https://harisekhon.github.io/CI-CD/) page by merging all the README.md headers for all of a user's non-forked GitHub repos or a given list of any repos etc.
-  - `github_purge_camo_cache.sh` - fetches a repo's base page and sends a PURGE HTTP request to each camo url to clear the badge caches
+  - `github_purge_camo_cache.sh` - send HTTP Purge requests to all camo urls (badge caches) for the current or given GitHub repo's landing/README.md page
   - `github_ip_ranges.sh` - returns GitHub's IP ranges, either all by default or for a select given service such as hooks or actions
   - `github_sync_repo_descriptions.sh` - syncs GitHub repo descriptions to GitLab & BitBucket repos
   - `github_release.sh` - creates a GitHub Release, auto-incrementing a `.N` suffix on the year/month/day date format if no exact version given
