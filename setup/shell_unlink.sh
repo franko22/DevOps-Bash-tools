@@ -17,9 +17,11 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-conf_files="$(sed 's/#.*//; /^[[:space:]]*$/d' "$srcdir/setup/files.txt")"
+bash_tools="$srcdir/.."
+
+conf_files="$(sed 's/#.*//; /^[[:space:]]*$/d' "$bash_tools/setup/files.txt")"
 
 # unreliable that HOME is set, ensure shell evaluates to the right thing before we use it
 [ -n "${HOME:-}" ] || HOME=~
@@ -28,6 +30,8 @@ echo "removing symlinks to dot files in \$HOME directory: $HOME"
 echo
 
 for filename in $conf_files .gitignore_global; do
+    filename="${filename#configs}"
+    filename="${filename#/}"
     if [ -L ~/"$filename" ]; then
         rm -fv -- ~/"$filename" || :
     fi

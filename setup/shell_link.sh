@@ -17,9 +17,11 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-conf_files="$(sed 's/#.*//; /^[[:space:]]*$/d' "$srcdir/setup/files.txt")"
+bash_tools="$srcdir/.."
+
+conf_files="$(sed 's/#.*//; /^[[:space:]]*$/d' "$bash_tools/setup/files.txt")"
 
 setup_file(){
     local filename="$1"
@@ -55,18 +57,20 @@ fi
 for filename in $conf_files; do
     if [[ "$filename" =~ / ]]; then
         dirname="${filename%/*}"
+        dirname2="${dirname#configs}"
+        dirname2="${dirname2#/}"
         filename="${filename##*/}"
-        mkdir -pv ~/"$dirname"
+        mkdir -pv ~/"$dirname2"
         # want opt expansion
         # shellcheck disable=SC2086
-        ln -sv $opts -- "$PWD/$dirname/$filename" ~/"$dirname"/ || :
+        ln -sv $opts -- "$PWD/$dirname/$filename" ~/"$dirname2"/ || :
     else
         # want opt expansion
         # shellcheck disable=SC2086
         ln -sv $opts -- "$PWD/$filename" ~ || continue
         # if we link .vimrc then run the vundle install and get plugins to prevent vim errors every startup
         if [ "$filename" = .vimrc ]; then
-            "$srcdir/setup/install_vundle.sh" || :
+            "$srcdir/../setup/install_vundle.sh" || :
         fi
     fi
 done

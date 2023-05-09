@@ -42,7 +42,7 @@ owner_repo="helm/helm"
 
 if [ "$version" = latest ]; then
     timestamp "determining latest version of '$owner_repo' via GitHub API"
-    version="$("$srcdir/../github_repo_latest_release.sh" "$owner_repo")"
+    version="$("$srcdir/../github/github_repo_latest_release.sh" "$owner_repo")"
     version="${version#v}"
     timestamp "latest version is '$version'"
 else
@@ -51,4 +51,4 @@ fi
 
 export RUN_VERSION_ARG=1
 
-"$srcdir/../install_binary.sh" "https://get.helm.sh/helm-v$version-{os}-{arch}.tar.gz" "{os}-{arch}/helm"
+"$srcdir/../packages/install_binary.sh" "https://get.helm.sh/helm-v$version-{os}-{arch}.tar.gz" "{os}-{arch}/helm"
