@@ -64,7 +64,8 @@ cd "$installdir"
 
 tarball="kics_${version}_${os}_$arch.tar.gz"
 
-wget -c "https://github.com/Checkmarx/kics/releases/download/v$version/$tarball"
+# wget isn't available on GCloud SDK container
+curl -sSLf -o "$tarball" "https://github.com/Checkmarx/kics/releases/download/v$version/$tarball"
 echo
 
 echo "unpacking tarball to: $PWD"
@@ -76,7 +77,9 @@ rm -fv -- "$tarball"
 echo
 
 echo "symlinking install dir:"
-ln -sfhv -- "$installdir" ~/bin/kics
+ln -sfhv -- "$installdir" ~/bin/kics ||
+# GCloud SDK version of 'ln' command doesn't have the -h switch
+ln -sfv -- "$installdir" ~/bin/kics
 echo
 
 echo "Ensure $HOME/bin/kics is added to your \$PATH"
