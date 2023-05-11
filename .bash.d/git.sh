@@ -396,7 +396,7 @@ st(){
             pushd "$target" >/dev/null || { echo "Error: failed to pushd to $target"; return 1; }
             echo "> git stash list" >&2
             git stash list && echo
-            #"$bash_tools/git_summary_line.sh"
+            #"$bash_tools/git/git_summary_line.sh"
             echo "> git status $target $*" >&2
             #git -c color.status=always status -sb . "$@"
             git -c color.status=always status . "$@"
@@ -406,7 +406,7 @@ st(){
         else
             pushd "$target_dirname" >/dev/null || { echo "Error: failed to pushed to '$target_dirname'"; return 1; }
             echo "> git status $target $*" >&2
-            #"$bash_tools/git_summary_line.sh"
+            #"$bash_tools/git/git_summary_line.sh"
             git -c color.status=always status "$target_basename" "$@"
         fi
         #git status "$target" "${*:2}"
@@ -730,9 +730,9 @@ push(){
         return 1
     fi
 }
-alias pushu='$bash_tools/github_push_pr_preview.sh'
-alias pushup='$bash_tools/github_push_pr.sh'
-alias pushupmerge='GITHUB_MERGE_PULL_REQUEST=true $bash_tools/github_push_pr.sh'
+alias pushu='$bash_tools/github/github_push_pr_preview.sh'
+alias pushup='$bash_tools/github/github_push_pr.sh'
+alias pushupmerge='GITHUB_MERGE_PULL_REQUEST=true $bash_tools/github/github_push_pr.sh'
 alias pushupm=pushupmerge
 
 pushr(){
@@ -747,11 +747,11 @@ alias pr=github_pull_request_create.sh
 
 alias mup=masterupdateprune
 masterupdateprune(){
-    local master_branch="master"
-    if git branch | sed 's/^..//' | grep -Fx main; then
-        master_branch="main"
-    fi
-    git checkout "$master_branch"
+    #local master_branch="master"
+    #if git branch | sed 's/^..//' | grep -Fx main; then
+    #    master_branch="main"
+    #fi
+    git checkout "$(git_default_branch)"
     pull
     prune
     git_revision
