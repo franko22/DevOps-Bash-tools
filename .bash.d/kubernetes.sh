@@ -78,6 +78,7 @@ alias kdelf='kdel -f'
 alias wp=watchpods
 alias kd=kdesc
 alias ke=kubectl_exec.sh
+alias kexec=kubectl_exec.sh
 alias ke2=kubectl_exec2.sh
 alias keg=kubectl_exec_grep.sh
 alias kg='k get'
@@ -90,24 +91,68 @@ alias kubesh='kube-shell'
 alias kubeconfig='$EDITOR "${KUBECONFIG:-~/.kube/config}"'
 alias kubeconf=kubeconfig
 
-alias use="k config use-context"
+#alias use="k config use-context"
 alias contexts="k config get-contexts"
 #alias context="k config current-context"
 context(){ k config current-context; }
-alias con=context
+#alias con=context
 alias cons=contexts
 # contexts has this info and is more useful
 #alias clusters="k config get-clusters"
 
 alias namespace='k config get-contexts | awk "/$(kubectl config current-context)/ {print \$NF}"'
+alias kwhere="{ echo -n 'context: '; context; echo -n 'namespace: '; namespace; }"
+alias con='kwhere'
 
-alias kcd='k config set-context "$(kubectl config current-context)" --namespace'
+#alias kcd='k config set-context "$(kubectl config current-context)" --namespace'
 
 alias menv='eval $(minikube docker-env)'
 
 # scripts at top level, automatically included in $PATH
 alias labels="kubectl_node_labels.sh"
 alias taints="kubectl_node_taints.sh"
+
+unalias kcd 2>/dev/null
+kcd(){
+    if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+        echo "usage: kcd <namespace>" >&2
+        return 1
+    fi
+    local namespace="$1"
+    echo "Switching to namespace '$namespace'"
+    k config set-context "$(kubectl config current-context)" --namespace "$namespace"
+}
+
+unalias use 2>/dev/null
+use(){
+    if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+        echo "usage: use <context> [<namespace>]" >&2
+        return 1
+    fi
+    local context="$1"
+    local namespace="${2:-}"
+    local contexts
+    contexts="$(k config get-contexts -o name)"
+    if ! grep -Fxq "$context" <<< "$contexts"; then
+        #echo "No matching contexts, inferring first partial match"
+        context="$(grep -Em1 "$context" <<< "$contexts" || :)"
+        if [ -z "$context" ]; then
+            echo "Couldn't find any matching context name" >&2
+            return 1
+        fi
+        #echo "Inferred context to be '$context'"
+    fi
+    #local args=()
+    #if [ -n "$namespace" ]; then
+    #    args+=(--namespace "$namespace")
+    #fi
+    #k config use-context "$context" "${args[@]}"
+    # less efficient, but more verbose
+    k config use-context "$context"
+    if [ -n "$namespace" ]; then
+        kcd "$namespace"
+    fi
+}
 
 kubectl_namespace(){
     kubectl config get-contexts | awk '/^\*/{print $5}'
@@ -269,29 +314,31 @@ krun(){
     k run --generator=run-pod/v1 "$name" --image "$image" -ti -- /bin/sh
 }
 
-kexec(){
-    local lines
-    local name="${1//\//-}"
-    if [ -z "$name" ]; then
-        echo "usage: kexec <name>"
-        return 1
-    fi
-    for ((i=0;i<100;i++)); do
-        lines="$(k get po | grep -F "$name")"
-        if [ -z "$lines" ]; then
-            echo "No pods matching name $name found!"
-            return 1
-        fi
-        name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
-        if [ -n "$name" ]; then
-            break
-        fi
-        echo "waiting for pod to start running..."
-        sleep 1
-    done
-    echo kubectl exec -ti "\"$name\"" -- /bin/sh
-    k exec -ti "$name" -- /bin/sh
-}
+# use ../kubernetes/kubectl_exec.sh via alias instead
+#kexec(){
+#    local lines
+#    local name="${1//\//-}"
+#    if [ -z "$name" ]; then
+#        echo "usage: kexec <name>"
+#        return 1
+#    fi
+#    for ((i=0;i<100;i++)); do
+#        lines="$(k get po | grep -F "$name")"
+#        if [ -z "$lines" ]; then
+#            echo "No pods matching name $name found!"
+#            return 1
+#        fi
+#        name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
+#        if [ -n "$name" ]; then
+#            break
+#        fi
+#        echo "waiting for pod to start running..."
+#        sleep 1
+#    done
+#    local cmd=(kubectl exec -ti "$name" "$@" -- /bin/sh -c 'if type bash >/dev/null 2>&1; then exec bash; else exec sh; fi')
+#    echo "${cmd[*]}"
+#    "${cmd[@]}"
+#}
 
 klog(){
     local name="$1"
@@ -311,7 +358,9 @@ klogs(){
             echo "No pods matching name $name found!"
             return 1
         fi
-        name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
+        # often want to see the logs of the last pod restart in 'Crashing' status
+        #name="$(awk '$3 ~ /Running/{print $1; exit}' <<< "$lines")"
+        name="$(awk '{print $1; exit}' <<< "$lines")"
         if [ -n "$name" ]; then
             break
         fi
@@ -419,8 +468,12 @@ kdesc(){
     k describe "$@"
 }
 
+# kdesc pod with grep filter on name for fast describing a pod in the current or given namespace
 kdp(){
-    kdesc pods "$@"
+    local filter="${1:-.*}"
+    shift || :
+    pod="$(k get po -o name "$@" | grep -Em 1 "$filter")" || return
+    kdesc "$pod" "$@"
 }
 
 kdelp(){
