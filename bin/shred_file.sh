@@ -22,9 +22,7 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Shreds free space by overwriting it with random data to prevent recovery of sensitive information
-
-Does a single overwrite (not very secure), specify 7 passes for DoD secure standard
+Overwrites a given file using dd to prevent recovery of sensitive information
 
 WARNING: you should only do this on old HDD, not SSD, hard drives which have a limited number of writes - you may shorten an SSD's lifespan if you over use this
 
@@ -59,29 +57,26 @@ on Linux:
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args=" [<dir> <passes>]"
+usage_args=" [<filename> <passes>]"
 
 help_usage "$@"
 
 max_args 2 "$@"
 
-dir="${1:-.}"
-passes="${2:-1}"
+file="${1:-.}"
+passes="${2:-7}"
 
-if ! [ -d "$dir" ]; then
-    die "Directory '$dir' does not exit"
+if ! [ -f "$file" ]; then
+    die "File '$file' does not exit"
 fi
 
-cd "$dir"
+filesize="$(du "$file" | awk '{print $1}')"
 
-tmpfile="shredfile.binary"
-
-trap_cmd "if [ -f \"$tmpfile\" ]; then timestamp 'Removing tmpfile \"$tmpfile\"'; rm -f \"$tmpfile\"; fi"
-
-timestamp "Writing tmpfile '$PWD/$tmpfile'"
+timestamp "Overwriting file '$file'"
 for (( i = 0; i < passes; i++ )); do
     timestamp "overwrite pass 1..."
-    dd if=/dev/urandom of="shredfile.binary"
-    timestamp "Removing tmpfile '$tmpfile'"
-    rm -f "$tmpfile"
+    dd bs="$filesize" count=1 if=/dev/urandom of="$file"
 done
+
+timestamp "Removing file:"
+rm -fv "$file"
