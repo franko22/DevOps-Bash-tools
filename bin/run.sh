@@ -115,6 +115,9 @@ else
                  *.tf)  #terraform plan
                         terraform apply
                         ;;
+ *.pkr.hcl|*.pkr.json)  packer init "$filename" &&
+                        packer build "$filename"
+                        ;;
                  *.md)  bash -ic "cd '$dirname'; gitbrowse"
                         ;;
                  *.gv)  file_png="${filename%.gv}.png"
