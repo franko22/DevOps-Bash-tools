@@ -88,7 +88,8 @@ else
   #                     ;;
   #kustomization.yaml)  yamllint "$basename"
   #                     ;;
-               *.y*ml)  #yamllint "$filename"
+*.y*ml|autoinstall-user-data)
+                        #yamllint "$filename"
                         check_yaml.sh "$basename"
                         ;;
               #.envrc)  cd "$dirname" && direnv allow .
@@ -102,7 +103,7 @@ else
                         ;;
  *.pkr.hcl|*.pkr.json)  packer init "$filename" &&
                         packer validate "$filename" &&
-                        packer fmt "$filename"
+                        packer fmt -diff "$filename"
                         ;;
                  *.md)  mdl "$basename"
                         ;;
