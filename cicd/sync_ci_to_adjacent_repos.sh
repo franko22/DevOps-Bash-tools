@@ -17,11 +17,10 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-cd "$srcdir"
+cd "$srcdir/.."
 
 sed 's/#.*//; s/:/ /' "$srcdir/../setup/repos.txt" |
 grep -vi -e bash-tools \
-         -e template \
          -e jenkins \
          -e github-actions \
          -e playlist \
@@ -58,7 +57,7 @@ while read -r repo dir; do
         fi
         mkdir -pv "${target%/*}"
         echo "syncing $filename -> $target"
-        perl -pe "s/(devops-)*bash-tools/$repo/i" "$filename" > "$target"
+        perl -pe "s/(?<!- )(devops-)*bash-tools/$repo/i" "$filename" > "$target"
         #if [ "$repo" = "nagios-plugins" ]; then
         #    perl -pi -e 's/(^[[:space:]]+make ci$)/\1 ci zookeeper-retry/' "$target"
         #fi
