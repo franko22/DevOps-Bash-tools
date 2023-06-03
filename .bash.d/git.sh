@@ -115,6 +115,7 @@ alias gha='gitbrowse github actions'
 alias ghw='github_workflows'
 alias wf='cd $(git_root)/.github/workflows/'
 alias ggrep="git grep"
+alias gfr='git_foreach_repo.sh'
 alias remotes='git remote -v'
 alias remote='remotes'
 # much quicker to just 'cd $github; f <pattern>'
@@ -551,6 +552,17 @@ git_pull(){
     echo
 }
 
+alias coj="git_branch_jira_ticket"
+git_branch_jira_ticket(){
+    local ticket="$1"
+    local branch="${ticket##*/}"
+    if git branch | sed 's/^..//' | grep -Fxq "$branch"; then
+        git checkout "$branch"
+    else
+        git checkout -b "$branch"
+    fi
+}
+
 checkout(){
     if isGit "."; then
         git checkout "$@";
@@ -870,7 +882,7 @@ updatemodules(){
             if [ -d "$submodule" ] && ! [ -L "$submodule" ]; then
                 pushd "$submodule" || continue
                 git stash
-                git checkout master
+                git checkout "$(git_default_branch)"
                 git pull --no-edit
                 git submodule update
                 # shellcheck disable=SC2164
