@@ -17,25 +17,30 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck source=lib/utils.sh
+# shellcheck source=lib/utils.sh disable=SC1091
 . "$srcdir/lib/utils.sh"
 
 # NFS issues sometimes cause scripts to rewritten from vim without executable bit set, which then gets committed to git by accident
 
 section "Finding Non Executable Scripts"
 
-script_extensions="
-sh
-py
-pl
-rb
-"
-
-ext_regex=""
-for ext in $script_extensions; do
-    ext_regex="$ext_regex|\\.$ext"
+# These shouldn't be executable even if they have #! lines for syntax reasons
+exceptions='
+\.bash\.d
+env$
+\.env
+\.envrc
+shrc$
+\..*login$
+\..*logout$
+\.bak
+\.pm$
+'
+exceptions_regex=""
+for exception in $exceptions; do
+    exceptions_regex="$exceptions_regex|$exception"
 done
-ext_regex="(${ext_regex#|})$"
+exceptions_regex="(${exceptions_regex#|})"
 
 filter_is_git_committed(){
     while read -r filename; do
@@ -47,11 +52,12 @@ filter_is_git_committed(){
     done
 }
 
-filter_not_python_library(){
+# only if at start of file, not part why through like %pre / %post sections of anaconda-ks.cfg kickstart file
+filter_is_shebang(){
     while read -r filename; do
-        pushd "$(dirname "$filename")" &>/dev/null
-        test -f __init__.py || echo "$filename"
-        popd &>/dev/null
+        if [ "$(head -c 2 "$filename")" = '#!' ]; then
+            echo "$filename"
+        fi
     done
 }
 
@@ -60,10 +66,10 @@ set +o pipefail
 # trying to build up successive -name options doesn't work and ruins the logic of find, simplify to grep
 non_executable_scripts="$(
     eval find "${1:-$PWD}" -maxdepth 2 -type f -not -perm -u+x |
-    grep -E "$ext_regex" |
-    grep -v -e '/\.[[:alnum:]]' |
+    xargs grep -l '^#!' |
+    grep -Ev "$exceptions_regex" |
+    filter_is_shebang |
     filter_is_git_committed |
-    filter_not_python_library |
     tee /dev/stderr
 )"
 set -o pipefail
