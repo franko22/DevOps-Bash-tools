@@ -152,6 +152,7 @@ maven-shell
 #md5sha1sum  # clashes with coreutils
 media-info  # read mp3 tags
 mercurial
+ubuntu/microk8s/microk8s
 midnight-commander
 #mitmproxy
 mosh
@@ -217,6 +218,7 @@ semgrep
 skaffold
 skopeo
 shpotify
+smartmontools
 snappy
 sonar-completion
 sonar-scanner
@@ -244,6 +246,7 @@ vim  # Mac's vim not syntax highlighting Bash properly on macOS Big Sur 11.7 htt
 watch
 #wget  # in brew-packages.txt
 #whois  # in brew-packages.txt
+wireshark  # only install tshark CLI, must --cask for Wireshark
 #x264
 #x265
 #xvid
