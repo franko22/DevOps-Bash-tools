@@ -27,10 +27,11 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 usage_description="
 Creates a Kubernetes external secret yaml from a given secret in the current or given namespace
 
-- generates external secret yaml
+- generates external secret yaml - if GENERATE_YAML_ONLY env var is set to any value, then stops here
 - checks the GCP Secret Manager secret exists
   - if it doesn't, creates it
   - if it does, validates that its content matches the existing secret in Kubernetes
+  - if there is a difference and OVERWRITE_GCP_SECRET env var is set to any value, creates a new version and uses that - XXX: use this carefully
 - creates external secret in the same namespace
 
 Useful to migrate existing secrets to external secrets referencing GCP Secret Manager
@@ -60,11 +61,6 @@ secret="$1"
 namespace="${2:-}"
 context="${3:-}"
 
-if [[ "$secret" =~ kubernetes\.io/service-account-token ]]; then
-    echo "WARNING: skipping touching secret '$secret' for safety"
-    exit 0
-fi
-
 kube_config_isolate
 
 if [ -n "$context" ]; then
@@ -74,16 +70,16 @@ if [ -n "$namespace" ]; then
     kube_namespace "$namespace"
 fi
 
-if [ "${namespace:-}" ]; then
+if [ -z "${namespace:-}" ]; then
     namespace="$(kube_current_namespace)"
 fi
 
-yaml="external-secret-$secret.yaml"
+yaml_file="external-secret-$secret.yaml"
 
 timestamp "Generating external secret for secret '$secret'"
 
 # if the secret has a dash in it, then you need to quote it whether .data."$secret" or .data["$secret"]
-k8s_secret_value="$(kubectl get secret "$secret" -o json | jq -r ".data[\"$secret\"]")"
+k8s_secret_value="$(kubectl get secret "$secret" -o json | jq -r ".data[\"$secret\"]" | base64 --decode)"
 
 if [ -z "$k8s_secret_value" ]; then
     timestamp "ERROR: failed to get Kubernetes secret value for '$secret' key '$secret'"
@@ -91,7 +87,7 @@ if [ -z "$k8s_secret_value" ]; then
 fi
 
 # https://github.com/HariSekhon/Kubernetes-configs/blob/master/external-secret.yaml
-yaml="
+yaml="---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
@@ -112,7 +108,16 @@ spec:
         key: $secret  # GCP Secret Manager secret
 "
 
-timestamp "Generated:  $yaml"
+# remove the sed line if you want to leave the comments in the generated files
+echo "$yaml" \
+    | sed 's/#.*$//; s/[[:space:]]*$//; /^[[:space:]]*$/d' \
+    > "$yaml_file"
+
+if [ -n "${GENERATE_YAML_ONLY:-}" ]; then
+    exit 0
+fi
+
+timestamp "Generated external-secret yaml file:  $yaml_file"
 
 timestamp "Checking GCP Secret Manager for secret '$secret'"
 
@@ -121,19 +126,31 @@ if gcloud secrets list --format='value(name)' | grep -Fxq "$secret"; then
     timestamp "Checking Kubernetes secret '$secret' content matches GCP secret '$secret' content"
     timestamp "Getting GCP secret '$secret' value"
     gcp_secret_value="$("$srcdir/../gcp/gcp_secret_get.sh" "$secret")"
-    if [ "$gcp_secret_value" = "$k8s_secret_value" ]; then
+    # if it's GCP service account key
+    if grep -Fq '"type": "service_account"' <<< "$gcp_secret_value"; then
+        # doesn't work
+        #if [ "$(jq -Mr <<< "$gcp_secret_value")" = "$(jq -Mr <<< "$k8s_secret_value")" ]; then
+        # if there are no whitespace differences between the service account keys then accept
+        if [ -n "$(diff -w <(echo "$gcp_secret_value") <(echo "$k8s_secret_value") )" ]; then
+            timestamp "ERROR: GCP secret service account json does not match existing Kubernetes secret service account json"
+            exit 1
+        fi
+    elif [ "$gcp_secret_value" = "$k8s_secret_value" ]; then
         timestamp "GCP and Kubernetes secret values match"
+    elif [ "${OVERWRITE_GCP_SECRET:-}" ]; then
+        timestamp "UPDATING GCP secret '$secret' value"
+        gcloud secrets versions add "$secret" --data-file=- <<< "$k8s_secret_value"
     else
         timestamp "ERROR: GCP secret value does not match existing Kubernetes secret value - careful manual reconciliation required"
         exit 1
     fi
 else
     timestamp "GCP secret '$secret' doesn't exist"
-    timestamp "Creating GCP secret '$secret' from the content of the Kubernetes secret '$secret'"
+    timestamp "CREATING GCP secret '$secret' from the content of the Kubernetes secret '$secret'"
     "$srcdir/../gcp/gcp_secret_add.sh" "$secret" "$k8s_secret_value"
     timestamp "GCP secret '$secret' created"
 fi
 
 timestamp "Applying external secret '$secret'"
 
-kubectl apply -f "$yaml"
+kubectl apply -f "$yaml_file"
