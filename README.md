@@ -2,7 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/network)
-[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-92k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Bash-tools#hari-sekhon---devops-bash-tools)
+[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-93k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Bash-tools#hari-sekhon---devops-bash-tools)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/LICENSE)
 [![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/HariSekhon/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/DevOps-Bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/commits/master)
@@ -561,8 +561,11 @@ etc.
 - `kubectl_kv_to_secret.sh` - creates a Kuberbetes secret from `key=value` or shell export format, as args or via stdin (eg. piped from `aws_csv_creds.sh`)
 - `kubectl_secret_values.sh` - prints the keys and base64 decoded values within a given Kubernetes secret for quick debugging of Kubernetes secrets. See also: `gcp_secrets_to_kubernetes.sh`
 - `kubectl_secrets_download.sh` - downloads all secrets in current or given namespace to local files of the same name, useful as a backup before migrating to Sealed Secrets
-- `kubernetes_secret_to_sealed_secret.sh` - generates a [Bitnami Sealed Secret](https://github.com/bitnami-labs/sealed-secrets) from an existing secret
-- `kubernetes_secrets_to_sealed_secrets.sh` - generates [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) from all existing secrets found in the current or given namespace
+- `kubernetes_secrets_compare_gcp_secret_manager.sh` - compares each Kubernetes secret to the corresponding secret in GCP Secret Manager. Useful to safety check GCP Secret Manager values align before enabling [External Secrets](https://external-secrets.io/latest/) to replace them
+- `kubernetes_secret_to_external_secret.sh` - generates an [External Secret](https://external-secrets.io/latest/) from an existing Kubernetes secret
+- `kubernetes_secrets_to_external_secrets.sh` - generates [External Secrets](https://external-secrets.io/latest/) from all existing Kubernetes secrets found in the current or given namespace
+- `kubernetes_secret_to_sealed_secret.sh` - generates a [Bitnami Sealed Secret](https://github.com/bitnami-labs/sealed-secrets) from an existing Kubernetes secret
+- `kubernetes_secrets_to_sealed_secrets.sh` - generates [Bitnami Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) from all existing Kubernetes secrets found in the current or given namespace
 - `kubectl_secrets_annotate_to_be_sealed.sh` - annotates secrets in current or given namespace to allow being overwritten by Sealed Secrets (useful to sync ArgoCD health)
 - `kubectl_secrets_not_sealed.sh` - finds secrets with no SealedSecret ownerReferences
 - `kubectl_secrets_to_be_sealed.sh` - finds secrets pending overwrite by Sealed Secrets with the managed annotation
