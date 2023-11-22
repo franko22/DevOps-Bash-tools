@@ -237,6 +237,7 @@ done
 
 doc_alias(){
     local docpath="$1"
+    local prefix="${2:-d}"
     [ -f "$docpath" ] || return 1
     docfile="${docpath##*/}"
     # slows down shell creation, will drain battery
@@ -256,12 +257,18 @@ doc_alias(){
     #    echo "WARNING: $docfile conflicts with existing alias, duplicate doc '$docfile' among ~/docs, ~/github/docs, ~/bitbucket/docs?"
     #    return
     #fi
+    local shortname="${docfile%.md}"
+    local shortname="${shortname%.txt}"
     # shellcheck disable=SC2139,SC2140
-    alias "d$docfile"="ti ${docpath##*/}; \$EDITOR $docpath"
+    alias "${prefix}${shortname}"="ti ${docpath##*/}; \$EDITOR $docpath"
 }
 
 for x in ~/docs/* "$github"/docs/* "$bitbucket"/docs/*; do
     doc_alias "$x" || :
+done
+
+for x in ~/knowledge/* "$github"/knowledge/* "$bitbucket"/knowledge/*; do
+    doc_alias "$x" k || :
 done
 
 # ============================================================================ #
