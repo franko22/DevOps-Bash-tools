@@ -33,6 +33,10 @@ EKS_CLUSTER - default: 'test'
 EKS_VERSION - default: 1.21 - you should probably set this to the latest supported to avoid having to upgrade later
 AWS_DEFAULT_REGION - default: 'eu-west-2'
 AWS_ZONES - defaults to zones a, b and c in AWS_DEFAULT_REGION (eg. 'eu-west-2a,eu-west-2b,eu-west-2c') - may need to tweak them anyway to work around a lack of capacity in zones. Must match AWS_DEFAULT_REGION
+
+See Also:
+
+    eksctl.yaml - in HariSekhon/Templates repo
 "
 
 # used by usage() in lib/utils.sh
