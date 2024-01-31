@@ -607,6 +607,7 @@ etc.
 - `helm_template.sh` - templates a Helm chart for Kustomize deployments
 - `kustomize_parse_helm_charts.sh` - parses the [Helm](https://helm.sh/) charts from one or more `kustomization.yaml` files into TSV format for further shell pipe processing
 - `kustomize_install_helm_charts.sh` - installs the [Helm](https://helm.sh/) charts from one or more `kustomization.yaml` files the old fashioned Helm CLI way so that tools like [Nova](https://github.com/FairwindsOps/nova) can be used to detect outdated charts (used in [Kubernetes-configs](https://github.com/HariSekhon/Kubernetes-configs) repo's [CI](https://github.com/HariSekhon/Kubernetes-configs/actions/workflows/nova.yaml))
+- `kustomize_update_helm_chart_versions.sh` - updates one or more `kustomization.yaml` files to the latest versions of any charts they contain
 - `kustomize_materialize.sh` - recursively materializes all `kustomization.yaml` to `kustomization.materialized.yaml` in the same directories for scanning with tools like [Pluto](https://github.com/FairwindsOps/pluto) to detect deprecated API objects inherited from embedded Helm charts. Parallelized for performance
 - `argocd_auto_sync.sh` - toggle Auto-sync on/off to allow repairs and maintenance operation for a given app and also disables / re-enables the App-of-Apps base apps to stop then re-enabling the app
 - `argocd_apps_sync.sh` - sync's all [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) apps matching an optional ERE regex filter on their names using the ArgoCD CLI
@@ -900,7 +901,7 @@ etc.
     - `jenkins_cred_cli_set_ssh_key.sh` - creates or updates a Jenkins SSH key credential from a string or an SSH private key file
     - `jenkins_cred_cli_set_user_pass.sh` - creates or updates a Jenkins username/password credential
   - `jenkins_password.sh` - gets Jenkins admin password from local docker container. Used by `jenkins_cli.sh`
-  - `jenkins_plugin_latest_version.sh` - finds the latest version of a given Jenkins plugin
+  - `jenkins_plugins_latest_versions.sh` - finds the latest versions of given Jenkins plugins. Useful to programmatically upgrade your Jenkins on Kubernetes plugins defined in [values.yaml](https://github.com/HariSekhon/Kubernetes-configs/blob/master/jenkins/base/values.yaml#L150)
   - `check_jenkinsfiles.sh` - validates all `*Jenkinsfile*` files in the given directory trees using the online Jenkins validator
 - `teamcity/*.sh` - [TeamCity CI](https://www.jetbrains.com/teamcity/) scripts:
   - `teamcity.sh` - one-touch [TeamCity CI](https://www.jetbrains.com/teamcity/) cluster:
