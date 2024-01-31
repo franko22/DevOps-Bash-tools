@@ -72,7 +72,7 @@ cpan_modules="$(tr ' ' ' \n' <<< "$cpan_modules" | sort -u | tr '\n' ' ')"
 echo "Installing CPAN Modules"
 echo
 
-opts=""
+opts="${CPANM_OPTS:-}"
 if is_CI; then
     echo "running in quiet mode for CI to minimize log noise"
     opts="-q"
@@ -123,13 +123,15 @@ if [ -n "${NO_FAIL:-}" ]; then
         echo "$sudo $envopts $CPANM --notest $opts $cpan_module"
         # want splitting of opts
         # shellcheck disable=SC2086
-        $sudo $envopts "$CPANM" --notest $opts "$cpan_module" || :
+        # 'env' prevent a command not found error if sudo isn't used from the space OPENSSL_INCLUDE="$brew_prefix/opt/openssl/include" prefix
+        env $sudo $envopts "$CPANM" --notest $opts "$cpan_module" || :
     done
 else
     echo "$sudo $envopts $CPANM --notest $opts $cpan_modules"
     # want splitting of opts and modules
     # shellcheck disable=SC2086
-    if ! $sudo $envopts "$CPANM" --notest $opts $cpan_modules; then
+    # 'env' prevent a command not found error if sudo isn't used from the space OPENSSL_INCLUDE="$brew_prefix/opt/openssl/include" prefix
+    if ! env $sudo $envopts "$CPANM" --notest $opts $cpan_modules; then
         echo
         echo "reading latest cpanm build.log for details:"
         echo
