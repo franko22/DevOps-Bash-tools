@@ -50,8 +50,15 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #   gcloud config set --help
 
 if [ -z "${CI:-}" ]; then
-    # gcloud config configurations list
-    export CLOUDSDK_ACTIVE_CONFIG_NAME="dev"
+    config=dev
+    # protect from setting this if the config does exist
+    # - not needed, it'll only affect the view in
+    # 'gcloud config configurations list'
+    # but the last settings will still be in effect so shouldn't mess up anybody GCloud SDK CLI if set to the wrong thing
+    # so save the extra fork
+    #if gcloud config configurations list --format='get(name)' | grep -q "^$config$"; then
+        export CLOUDSDK_ACTIVE_CONFIG_NAME="$config"
+    #fi
 fi
 
 # XXX: Edit
@@ -98,7 +105,8 @@ if [ -z "${CLOUDSDK_CONTAINER_CLUSTER:-}" ]; then
     fi
 fi
 
-# alternatively see gke_kube_context() function in .envrc-kubernetes
+# alternatively call gke_kube_context() function in .envrc-kubernetes which will do this
+# and comment out auto-running kube_context() on sourcing .envrc-kubernetes
 if [ -n "${CLOUDSDK_CONTAINER_CLUSTER:-}" ]; then
     # kubectl context is easily created by running adjacent aws_kube_creds.sh script first
 
