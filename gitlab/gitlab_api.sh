@@ -35,9 +35,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 usage_description="
 Queries the GitLab.com API (v4)
 
-Can specify \$CURL_OPTS for options to pass to curl, or pass them as arguments to the script
-
 Automatically handles authentication via environment variable \$GITLAB_TOKEN
+
+Optional: \$GITLAB_USER - used for some replacement tokens, prevents having to search git remotes or query the API for it
+          \$GITLAB_HOST - URL to point to self-hosts GitLab servers
+
+Can specify \$CURL_OPTS for options to pass to curl, or pass them as arguments to the script
 
 
 You must set up a personal access token here:
@@ -55,12 +58,12 @@ Examples:
 
 # Get currently authenticated user:
 
-    ${0##*/} /user
+    ${0##*/} /user | jq .
 
 
 # List a user's GitLab projects (repos):
 
-    ${0##*/} /users/HariSekhon/projects
+    ${0##*/} /users/HariSekhon/projects | jq .
 
 
 # Update a project's description:
@@ -148,7 +151,7 @@ local full 'user/repo' name of the current directory:      project, /projects/:i
 # shellcheck disable=SC2034
 usage_args="/path [<curl_options>]"
 
-url_base="https://gitlab.com/api/v4"
+url_base="${GL_HOST:-${GITLAB_HOST:-https://gitlab.com}}/api/v4"
 
 help_usage "$@"
 
@@ -159,7 +162,9 @@ curl_api_opts "$@"
 url_path="$1"
 shift || :
 
-url_path="${url_path##*:\/\/api.gitlab.com\/api\/v4}"
+# false positive, this works
+# shellcheck disable=SC2295
+url_path="${url_path##$url_base}"
 url_path="${url_path##/}"
 
 # for convenience of straight copying and pasting out - but documentation uses :id in different contexts to mean project id or user id so this is less useful than in github_api.sh

@@ -18,10 +18,10 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir_github_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$srcdir_github_lib/utils.sh"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$srcdir_github_lib/git.sh"
 
 # shellcheck disable=SC2034
@@ -32,7 +32,7 @@ github_pull_request_url_regex='https://github.com/[[:alnum:]/_-]+/pull/[[:digit:
 
 get_github_repo(){
     git remote -v 2>/dev/null |
-    grep github.com |
+    grep -E "github\.${domain_regex}[/:]" |
     awk '{print $2}' |
     head -n1 |
     sed '
@@ -45,7 +45,9 @@ get_github_repo(){
 }
 
 is_github_origin(){
-    git remote -v | grep -q '^origin.*github.com[/:]'
+    git remote -v |
+    # permitting generic domain regex for those self-hosting their own github enterprise servers
+    grep -q "^origin.*github\.${domain_regex}[/:]"
 }
 
 check_github_origin(){
@@ -58,9 +60,9 @@ github_origin_owner_repo(){
     local owner_repo
     owner_repo="$(
         git remote -v |
-        grep -m1 '^origin.*github.com[/:]' |
+        grep -Em1 '^origin.*github\.${domain_regex}[/:]' |
         sed '
-            s|.*github.com[:/]||;
+            s|.*github\.${domain_regex}[:/]||;
             s/\.git.*//;
             s/[[:space:]].*//
         ' ||
