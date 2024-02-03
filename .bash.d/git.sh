@@ -745,7 +745,14 @@ push(){
         return 1
     fi
 }
-alias pushu='$bash_tools/github/github_push_pr_preview.sh'
+unalias pushu 2>/dev/null || :
+pushu(){
+    if git remote -v | grep -qi '^origin[[:space:]].*gitlab\.'; then
+        "$bash_tools/gitlab/gitlab_push_pr_preview.sh"
+    else
+        "$bash_tools/github/github_push_pr_preview.sh"
+    fi
+}
 alias pushup='$bash_tools/github/github_push_pr.sh'
 alias pushupmerge='GITHUB_MERGE_PULL_REQUEST=true $bash_tools/github/github_push_pr.sh'
 alias pushupm=pushupmerge
