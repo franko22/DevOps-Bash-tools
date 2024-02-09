@@ -158,7 +158,8 @@ Heavily used in many [GitHub repos](https://github.com/search?o=desc&q=user%3Aha
 [Docker-Compose](https://docs.docker.com/compose/),
 [jq](https://stedolan.github.io/jq/)
 and many others... extensive package lists for servers and desktops for most major Linux distributions package managers and Mac
-  - `setup/` - contains even more scripts to download and install software, JDBC connectors, Mac OS X settings etc.
+  - `install/ - contains installation scripts for various software
+  - `setup/` - contains even more setup scripts and config, package lists, Mac OS X settings etc.
 - Utility Libraries used by many hundreds of scripts and [builds](https://harisekhon.github.io/CI-CD/) across [repos](https://github.com/search?o=desc&q=user%3Aharisekhon+type%3Arepository&type=Repositories):
   - `.bash.d/` - interactive library
   - `lib/` - scripting and CI library
@@ -262,7 +263,7 @@ environment,
 CI detection ([Travis CI](https://travis-ci.org/), [Jenkins](https://jenkins.io/) etc),
 port and HTTP url availability content checks etc.
 Sourced from all my other [GitHub repos](https://github.com/harisekhon) to make setting up Dockerized tests easier.
-- `setup/install_*.sh` - various simple to use installation scripts for common technologies like
+- `install/install_*.sh` - various simple to use installation scripts for common technologies like
 [AWS CLI](https://aws.amazon.com/cli/),
 [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest),
 [GCloud SDK](https://cloud.google.com/sdk),
@@ -1031,7 +1032,7 @@ etc.
 `bin/`, `pingdom/`, `terraform/` directories:
 
 - `digital_ocean_api.sh` / `doapi.sh` - queries the [Digital Ocean](https://www.digitalocean.com/) API with authentication
-  - see also the Digital Ocean CLI `doctl` (`setup/install_doctl.sh`)
+  - see also the Digital Ocean CLI `doctl` (`install/install_doctl.sh`)
 - `atlassian_ip_ranges.sh` - lists [Atlassian](https://www.atlassian.com/)'s IPv4 and/or IPv6 cidr ranges via its API
 - `circleci_public_ips.sh` - lists [CircleCI](https://circleci.com) public IP addresses via dnsjson.com
 - `cloudflare_*.sh` - [Cloudflare](https://www.cloudflare.com/) API queries and reports:
@@ -1165,13 +1166,13 @@ etc.
 
 #### More Linux & Mac
 
-`bin/`, `setup/` and `packages/` directories:
+`bin/`, `install/`, `packages/`, `setup/` directories:
 
 - [Linux](https://en.wikipedia.org/wiki/Linux) / [Mac](https://en.wikipedia.org/wiki/MacOS) systems administration scripts:
-  - installation scripts for various OS packages (RPM, Deb, Apk) for various Linux distros ([Redhat RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) / [Fedora](https://getfedora.org/), [Debian](https://www.debian.org/) / [Ubuntu](https://ubuntu.com/), [Alpine](https://alpinelinux.org/))
+  - `install/` - installation scripts for various OS packages (RPM, Deb, Apk) for various Linux distros ([Redhat RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) / [Fedora](https://getfedora.org/), [Debian](https://www.debian.org/) / [Ubuntu](https://ubuntu.com/), [Alpine](https://alpinelinux.org/))
   - install if absent scripts for Python, Perl, Ruby, NodeJS and Golang packages - good for minimizing the number of source code installs by first running the OS install scripts and then only building modules which aren't already detected as installed (provided by system packages), speeding up builds and reducing the likelihood of compile failures
-  - install scripts for [Jython](https://www.jython.org/) and build tools like [Gradle](https://gradle.org/) and [SBT](https://www.scala-sbt.org/) for when Linux distros don't provide packaged versions or where the packaged versions are too old
-  - OS / Distro Package Management:
+  - install scripts for tarballs, Golang binaries, random 3rd party installers, [Jython](https://www.jython.org/) and build tools like [Gradle](https://gradle.org/) and [SBT](https://www.scala-sbt.org/) for when Linux distros don't provide packaged versions or where the packaged versions are too old
+  - `packages/` - OS / Distro Package Management:
     - `install_packages.sh` - installs package lists from arguments, files or stdin on major linux distros and Mac, detecting the package manager and invoking the right install commands, with `sudo` if not root. Works on [RHEL](https://www.redhat.com/en) / [CentOS](https://www.centos.org/) / [Fedora](https://getfedora.org/), [Debian](https://www.debian.org/) / [Ubuntu](https://ubuntu.com/), [Alpine](https://alpinelinux.org/), and [Mac Homebrew](https://brew.sh/). Leverages and supports all features of the distro / OS specific install scripts listed below
     - `install_packages_if_absent.sh` - installs package lists if they're not already installed, saving time and minimizing install logs / CI logs, same support list as above
     - Redhat RHEL / CentOS:

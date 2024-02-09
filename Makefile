@@ -211,7 +211,7 @@ npm-desktop: npm
 
 .PHONY: aws
 aws: system-packages python-version
-	@if ! command -v aws; then setup/install_aws_cli.sh; fi
+	@if ! command -v aws; then install/install_aws_cli.sh; fi
 	@# needed for github_mirror_repos_to_aws_codecommit.sh and dependent GitHub Actions workflows
 	@grep '^git-remote-codecommit' requirements.txt | PIP=$(PIP) ./python/python_pip_install_if_absent.sh || :
 
@@ -222,7 +222,7 @@ aws-shell:
 
 .PHONY: azure
 azure: system-packages
-	@setup/install_azure_cli.sh
+	@install/install_azure_cli.sh
 
 .PHONY: azure-shell
 azure-shell: link
@@ -230,8 +230,8 @@ azure-shell: link
 
 .PHONY: gcp
 gcp: system-packages
-	@./setup/install_gcloud_sdk.sh
-	@./setup/install_cloud_sql_proxy.sh
+	@./install/install_gcloud_sdk.sh
+	@./install/install_cloud_sql_proxy.sh
 
 .PHONY: gcp-shell
 gcp-shell:
@@ -243,14 +243,14 @@ github-cli: ~/bin/gh
 	@:
 
 ~/bin/gh:
-	setup/install_github_cli.sh
+	install/install_github_cli.sh
 
 .PHONY:
 digital-ocean: ~/bin/doctl
 	@:
 
 ~/bin/doctl:
-	setup/install_doctl.sh
+	install/install_doctl.sh
 
 .PHONY: kubernetes
 kubernetes: kubectl kustomize
@@ -265,21 +265,21 @@ kubectl: ~/bin/kubectl
 	@:
 
 ~/bin/kubectl:
-	setup/install_kubectl.sh
+	install/install_kubectl.sh
 
 .PHONY: kustomize
 kustomize: ~/bin/kustomize
 	@:
 
 ~/bin/kustomize:
-	setup/install_kustomize.sh
+	install/install_kustomize.sh
 
 .PHONY: vim
 vim: ~/.vim/bundle/Vundle.vim
 	@:
 
 ~/.vim/bundle/Vundle.vim:
-	setup/install_vundle.sh
+	install/install_vundle.sh
 
 .PHONY: tmux
 tmux: ~/.tmux/plugins/tpm ~/.tmux/plugins/kube.tmux

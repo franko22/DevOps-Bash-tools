@@ -191,6 +191,8 @@ git_url_base(){
          s|^git@||;
          s|^|https://|;
          s/\.git$//;
+         # Azure DevOps only puts this in https urls, not ssh, so strip for standardizing output
+         s|/_git/|/|;
          ' |
     perl -pe 's/:(?!\/\/)/\//'
 }
