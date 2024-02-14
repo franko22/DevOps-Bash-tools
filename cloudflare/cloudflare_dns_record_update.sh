@@ -2,7 +2,7 @@
 #  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
-#  Date: 2021-03-04 16:00:54 +0000 (Thu, 04 Mar 2021)
+#  Date: 2024-02-13 21:54:45 +0000 (Tue, 13 Feb 2024)
 #
 #  https://github.com/HariSekhon/DevOps-Bash-tools
 #
@@ -22,21 +22,27 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Lists Cloudflare Zone names and IDs (needed for Terraform)
+Creates a DNS record in the given domain
 
-Output:
+Resolves the domain name to a zone ID first and then submits the request to create the requested record
 
-<id>    <name>
+https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-patch-dns-record
 
-Uses cloudflare_api.sh - see there for authentication API key details
-Used by cloudflare_dns_record_*.sh
-"
+Uses adjacent cloudflare_dns_record_create.sh
+
+You might get this error:
+
+"'    {"success":false,"errors":[{"code":10000,"message":"PUT method not allowed for the api_token authentication scheme"}]}
+'
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args=""
+usage_args="<domain> <hostname> <ip_or_content> <proxied_true_false> <record_type>"
 
 help_usage "$@"
 
-"$srcdir/cloudflare_api.sh" /zones |
-jq -r '.result[] | [.id, .name] | @tsv'
+min_args 3 "$@"
+
+export CLOUDFLARE_DNS_RECORD_UPDATE=1
+
+"$srcdir/cloudflare_dns_record_create.sh" "$@"

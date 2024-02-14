@@ -2,7 +2,7 @@
 #  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
-#  Date: 2020-09-02 18:17:26 +0100 (Wed, 02 Sep 2020)
+#  Date: 2024-02-13 21:54:58 +0000 (Tue, 13 Feb 2024)
 #
 #  https://github.com/HariSekhon/DevOps-Bash-tools
 #
@@ -22,29 +22,25 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Lists all DNS records for a given Cloudflare zone
+Gets details for a DNS record in the given domain
 
-Resolves the domain name to a zone ID first and then submits the request to list the DNS records in that domain
+Details are given in JSON for further pipe processing
 
-https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
+Resolves the DNS record and then submits the request to delete the requested record
 
-Output format:
-
-<dns_record>    <type>    <ttl>
-
-
-Limitation: only lists the first 50,000 DNS records in a zone. Pagination code addition required if you have a zone larger than this
+https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-delete-dns-record
 "
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args="<domain>"
+usage_args="<domain> <hostname>"
 
 help_usage "$@"
 
-min_args 1 "$@"
+num_args 2 "$@"
 
 domain="$1"
+hostname="$2"
 
 zone_id="$("$srcdir/cloudflare_zones.sh" |
            grep -E "^[[:alnum:]]+[[:space:]]+$domain$" |
@@ -55,6 +51,13 @@ if [ -z "$zone_id" ]; then
     die "Zone ID is empty, check code"
 fi
 
-"$srcdir/cloudflare_api.sh" "/zones/$zone_id/dns_records?per_page=50000" |
-jq -r '.result[] | [.name, .type, .ttl] | @tsv' |
-column -t
+dns_record_id="$(
+    "$srcdir/cloudflare_api.sh" "/zones/$zone_id/dns_records?per_page=50000" |
+    jq -r '.result[] | [.id, .name] | @tsv' |
+    grep -E "^[[:alnum:]]+[[:space:]]+$hostname" |
+    head -n 1 |
+    sed 's/[[:space:]].*$//' ||
+    die "Failed to record DNS record '$hostname' in domain '$domain' - are the hostname and domain name correct?"
+)"
+
+"$srcdir/cloudflare_api.sh" "zones/$zone_id/dns_records/$dns_record_id"
