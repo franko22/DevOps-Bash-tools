@@ -1180,6 +1180,13 @@ is_float(){
     [[ "$arg" =~ ^[[:digit:]]+(\.[[:digit:]]+)?$ ]]
 }
 
+is_bool(){
+    local arg="$1"
+    # intentionally not making this case insensitive in case APIs are touchy about this
+    # calling script can set case matching insensitivity if needed
+    [[ "$arg" =~ ^true|false$ ]]
+}
+
 parse_export_key_value(){
     local env_var="$1"
     env_var="${env_var%%#*}"

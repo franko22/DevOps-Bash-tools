@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #  vim:ts=4:sts=4:sw=4:et
+#  args: check-gcp-serviceaccount ../setup/jenkins-job-check-gcp-serviceaccount.xml
 #
 #  Author: Hari Sekhon
 #  Date: 2024-02-07 18:12:00 +0000 (Wed, 07 Feb 2024)
@@ -22,13 +23,10 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Creates a freestyle parameterized test sleep job and launches N parallel runs of it to test scaling and parallelization of Jenkins on Kubernetes agents
+Creates a Jenkins job from a given xml file and triggers it to run immediately
 
-Runs 10 jobs by default which run for 10 minutes each
-
-The job configuration where this is specified is in:
-
-    $srcdir/../setup/jenkins-test-sleep-job.xml
+If the job already exists, skips creation
+If the job already exists and the enviroment variable JENKINS_OVERWRITE_JOB is set to any value it updates the job definition
 
 Uses the adjacent script jenkins_cli.sh
 
@@ -37,32 +35,33 @@ Jenkins authentication token and environment variables must be set - see jenkins
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args="[<number_of_job_runs_to_launch>]"
+usage_args="<job_name> <job_xml_file> [<jenkins_cli_options>]"
 
 help_usage "$@"
 
-max_args 1 "$@"
+min_args 2 "$@"
 
-num_jobs="${1:-10}"
+job_name="$1"
+job_xml="$2"
+shift || :
+shift || :
 
-if ! is_int "$num_jobs"; then
-    usage "argument must be an integer"
-elif [ "$num_jobs" -gt 100 ]; then
-    usage "argument is greater than 100, this seems like a costly mistake. Edit the protection in this script if you really want to do this"
+if ! [ -f "$job_xml" ]; then
+    die "Job config file not found: $job_xml"
 fi
 
-job_name='test-sleep-job'
-job_xml="$srcdir/../setup/jenkins-test-sleep-job.xml"
-
 timestamp "Checking if job '$job_name' already exists'"
-if jenkins_cli.sh list-jobs | grep -q '^test-sleep-job$'; then
-    timestamp "Job '$job_name' already exists, skipping creation"
+if jenkins_cli.sh list-jobs | grep -q "^$job_name$"; then
+    if [ -n "${JENKINS_OVERWRITE_JOB:-}" ]; then
+        timestamp "Job '$job_name' already exists, updating to ensure latest version"
+        "$srcdir/jenkins_cli.sh" update-job "$job_name" < "$job_xml"
+    else
+        timestamp "Job '$job_name' already exists, skipping creation"
+    fi
 else
     timestamp "Job '$job_name' does not exist yet, creating..."
     "$srcdir/jenkins_cli.sh" create-job "$job_name" < "$job_xml"
 fi
 
-for ((i=1; i <= "$num_jobs"; i++)); do
-    timestamp "Launching job $i"
-    "$srcdir/jenkins_cli.sh" build "$job_name" -p "UNIQUE_VALUE=Run $i"
-done
+timestamp "Triggering job '$job_name'"
+"$srcdir/jenkins_cli.sh" build "$job_name" "$@"
