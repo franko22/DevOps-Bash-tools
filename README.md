@@ -2,7 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/devops-bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/devops-bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/network)
-[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-93k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Bash-tools#hari-sekhon---devops-bash-tools)
+[![Lines of Code](https://img.shields.io/badge/lines%20of%20code-96k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/DevOps-Bash-tools#hari-sekhon---devops-bash-tools)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/HariSekhon/DevOps-Bash-tools/blob/master/LICENSE)
 [![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/HariSekhon/)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/DevOps-Bash-tools?logo=github)](https://github.com/HariSekhon/DevOps-Bash-tools/commits/master)
@@ -531,6 +531,8 @@ etc.
       - `gcp_iam_serviceaccounts_without_permissions.sh` - finds service accounts without IAM permissionns, useful to detect obsolete service accounts after a 90 day unused permissions clean out
       - `gcp_iam_workload_identities.sh` - lists GKE Workload Identity integrations, uses `gcp_iam_serviceaccount_members.sh`
       - `gcp_iam_users_granted_directly.sh` - lists GCP IAM users which have been granted roles directly in violation of best-practice group-based management
+  - `gcs_bucket_project.sh` - finds the GCP project that a given bucket belongs to using the GCP Storage API
+  - `gcs_curl_file.sh` - retrieves a GCS file's contents from a given bucket and path using the GCP Storage API. Useful for starting shell pipelines or being called from other scripts
 
 #### Kubernetes
 
@@ -1003,6 +1005,7 @@ etc.
   - `terraform_cloud_varset_set_vars.sh` - adds / updates Terraform sensitive environment/terraform variable(s) in a given variable set via the API from `key=value` or shell export format, as args or via stdin (eg. piped from `aws_csv_creds.sh`)
   - `terraform_cloud_varset_delete_vars.sh` - deletes one or more Terraform variables in a given variable set
 - `terraform_*.sh` - [Terraform](https://www.terraform.io/) scripts:
+  - `terraform_gcs_backend_version.sh` - determines the Terraform state version from the tfstate file in a GCS bucket found in a local given `backend.tf`
   - `terraform_import.sh` - finds given resource type in `./*.tf` code or Terraform plan output that are not in Terraform state and imports them
   - `terraform_import_aws_iam_users.sh` - parses Terraform plan output to import new `aws_iam_user` additions into Terraform state
   - `terraform_import_aws_iam_groups.sh` - parses Terraform plan output to import new `aws_iam_group` additions into Terraform state
