@@ -22,11 +22,22 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Runs 'gcloud compute ssh' to a VM while auto-determining its zone to make it easier to script iterating through VMs
+Runs 'gcloud compute ssh' to a VM while auto-determining its zone first to override any inherited zone config and make it easier to script iterating through VMs
 
-You should either set your GCP project and region should already be in your current 'gcloud config',
+Otherwise if \$CLOUDSDK_COMPUTE_ZONE environment is inherited (eg. via .envrc) pointing to a different zone it results in this error:
+
+    ERROR: (gcloud.compute.ssh) Could not fetch resource:
+     - The resource 'projects/<MY_PROJECT>/zones/<ZONE>/instances/<VM_NAME>' was not found
+
+or if in the wrong project or region you can be interactively prompted for a zone
+
+Your GCP project and region should already be set in your current 'gcloud config',
 or export CLOUDSDK_CORE_PROJECT and CLOUDSDK_CORE_REGION environment variables,
-or supply --project ... and --region ... arguments
+or supply explicit --project ... and --region ... arguments to this script
+
+If the VM zone isn't found it resolves the project and region to remind you that you're probably in the wrong project / region
+while displaying them to make it more obvious that you've inherited the wrong config, to save you some debugging time
+and stopping you from getting stuck on the interactive zone prompt
 
 Requires GCloud SDK to be installed, configured and authenticated
 "
@@ -42,10 +53,20 @@ min_args 1 "$@"
 vm_name="$1"
 shift || :
 
-zone="$(gcloud compute instances list | awk "/^${vm_name}[[:space:]]/ {print \$2}")"
+unset CLOUDSDK_COMPUTE_ZONE
 
-if [ -z "$zone" ]; then
-    die "Failed to determine zone for VM name '$vm_name' - perhaps VM name is incorrect or wrong region or "
-fi
+# If gcloud config's compute/zone is set, then actively determines the zone of the VM first and overrides it specifically
+# Better to let it try to figure it out and exit with an explicit error reminding what project and region you are in
+#if gcloud config get compute/zone 2>/dev/null | grep -q .; then
+    #zone="$(gcloud compute instances list | awk "/^${vm_name}[[:space:]]/ {print \$2}")"
+    zone="$(gcloud compute instances list --filter="name: $vm_name" --format='value(zone)')"
+    if [ -z "$zone" ]; then
+        die "Failed to determine zone for VM name '$vm_name' - perhaps VM name is incorrect?
+or wrong project ('$(gcloud config get core/project 2>/dev/null)')?
+or wrong region ('$(gcloud config get compute/region 2>/dev/null)')?"
+    fi
+#fi
 
-gcloud compute ssh "$vm_name" --zone "$zone" "$@"
+# would auto-determine the zone if in the right project and region but otherwise will interactively prompt
+# - this is why we auto-populate the zone above to give a very explicit error out while showing the currently inherited project and region
+gcloud compute ssh "$vm_name" ${zone:+--zone "$zone"} "$@"
