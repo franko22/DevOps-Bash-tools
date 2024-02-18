@@ -750,13 +750,29 @@ push(){
 unalias pushu 2>/dev/null || :
 pushu(){
     if git remote -v | grep -qi '^origin[[:space:]].*gitlab\.'; then
-        "$bash_tools/gitlab/gitlab_push_pr_preview.sh"
+        "$bash_tools/gitlab/gitlab_push_mr_preview.sh"
     else
         "$bash_tools/github/github_push_pr_preview.sh"
     fi
 }
-alias pushup='$bash_tools/github/github_push_pr.sh'
-alias pushupmerge='GITHUB_MERGE_PULL_REQUEST=true $bash_tools/github/github_push_pr.sh'
+unalias pushup 2>/dev/null || :
+pushup(){
+    if git remote -v | grep -qi '^origin[[:space:]].*gitlab\.'; then
+        "$bash_tools/gitlab/gitlab_push_mr.sh"
+    else
+        "$bash_tools/github/github_push_pr.sh"
+    fi
+}
+unalias pushupmerge 2>/dev/null || :
+pushupmerge(){
+    if git remote -v | grep -qi '^origin[[:space:]].*gitlab\.'; then
+        GITLAB_MERGE_PULL_REQUEST=true \
+        "$bash_tools/gitlab/gitlab_push_mr.sh"
+    else
+        GITHUB_MERGE_PULL_REQUEST=true \
+        "$bash_tools/github/github_push_pr.sh"
+    fi
+}
 alias pushupm=pushupmerge
 
 pushr(){
