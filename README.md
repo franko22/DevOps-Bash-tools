@@ -158,8 +158,8 @@ Heavily used in many [GitHub repos](https://github.com/search?o=desc&q=user%3Aha
 [Docker-Compose](https://docs.docker.com/compose/),
 [jq](https://stedolan.github.io/jq/)
 and many others... extensive package lists for servers and desktops for most major Linux distributions package managers and Mac
-  - `install/` - contains installation scripts for various software
-  - `setup/` - contains even more setup scripts and config, package lists, Mac OS X settings etc.
+  - `install/` - contains many installation scripts for popular open source software and direct binary downloads from GitHub releases
+  - `setup/` - contains setup scripts, package lists, extra configs, Mac OS X settings etc.
 - Utility Libraries used by many hundreds of scripts and [builds](https://harisekhon.github.io/CI-CD/) across [repos](https://github.com/search?o=desc&q=user%3Aharisekhon+type%3Arepository&type=Repositories):
   - `.bash.d/` - interactive library
   - `lib/` - scripting and CI library
@@ -484,6 +484,7 @@ etc.
     - `gcp_ci_build.sh` - script template for CI/CD to trigger Google Cloud Build to build docker container image with extra datetime and latest tagging
     - `gcp_ci_deploy_k8s.sh` - script template for CI/CD to deploy GCR docker image to GKE Kubernetes using Kustomize
   - `gce_*.sh` - [Google Compute Engine](https://cloud.google.com/compute/) scripts:
+    - `gce_foreach_vm.sh` - run a command for each GCP VM instance matching the given name/ip regex in the current GCP project
     - `gce_ssh.sh` - Runs `gcloud compute ssh` to a VM while auto-determining its zone first to override any inherited zone config and make it easier to script iterating through VMs
     - `gce_meta.sh` - simple script to query the GCE metadata API from within Virtual Machines
     - `gce_when_preempted.sh` - GCE VM preemption latch script - can be executed any time to set one or more commands to execute upon preemption

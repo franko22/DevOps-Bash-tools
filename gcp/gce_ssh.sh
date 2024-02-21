@@ -39,12 +39,19 @@ If the VM zone isn't found it resolves the project and region to remind you that
 while displaying them to make it more obvious that you've inherited the wrong config, to save you some debugging time
 and stopping you from getting stuck on the interactive zone prompt
 
+Example iteration if you don't have direct access or SSH keys to a client's VMs,
+you can use this to SSH for loop like so using the standard gcloud compute ssh argument of '--command':
+
+    for x in {1..10}; do gce_ssh.sh vm-\$x --command 'sudo systemctl restart MYAPP.service'; echo; done
+
+You can also use an IP address of the VM for convenience which will get resolved to a VM name
+
 Requires GCloud SDK to be installed, configured and authenticated
 "
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args="<vm_name> [<gcloud_sdk_args>]"
+usage_args="<vm_name_or_ip> [<gcloud_sdk_args>]"
 
 help_usage "$@"
 
@@ -55,11 +62,21 @@ shift || :
 
 unset CLOUDSDK_COMPUTE_ZONE
 
+if [[ "$vm_name" =~ ^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$ ]]; then
+    ip="$vm_name"
+    timestamp "Resolving IP '$ip' to VM name"
+    vm_name="$(gcloud compute instances list --filter="networkInterfaces[0].networkIP: $ip" --format='value(name)')"
+    if [ -z "$vm_name" ]; then
+        die "Failed to resolve '$ip' to VM name"
+    fi
+fi
+
 # If gcloud config's compute/zone is set, then actively determines the zone of the VM first and overrides it specifically
 # Better to let it try to figure it out and exit with an explicit error reminding what project and region you are in
 #if gcloud config get compute/zone 2>/dev/null | grep -q .; then
+    timestamp "Determining zone for VM '$vm_name'"
     #zone="$(gcloud compute instances list | awk "/^${vm_name}[[:space:]]/ {print \$2}")"
-    zone="$(gcloud compute instances list --filter="name: $vm_name" --format='value(zone)')"
+    zone="$(gcloud compute instances list --filter="name=$vm_name" --format='value(zone)')"
     if [ -z "$zone" ]; then
         die "Failed to determine zone for VM name '$vm_name' - perhaps VM name is incorrect?
 or wrong project ('$(gcloud config get core/project 2>/dev/null)')?
@@ -69,4 +86,5 @@ or wrong region ('$(gcloud config get compute/region 2>/dev/null)')?"
 
 # would auto-determine the zone if in the right project and region but otherwise will interactively prompt
 # - this is why we auto-populate the zone above to give a very explicit error out while showing the currently inherited project and region
+timestamp "gcloud compute ssh '$vm_name' ${zone:+--zone "'$zone'"} $*"
 gcloud compute ssh "$vm_name" ${zone:+--zone "$zone"} "$@"
