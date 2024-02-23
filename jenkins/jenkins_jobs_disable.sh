@@ -2,7 +2,7 @@
 #  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
-#  Date: 2022-06-28 18:34:34 +0100 (Tue, 28 Jun 2022)
+#  Date: 2024-02-23 01:13:35 +0000 (Fri, 23 Feb 2024)
 #
 #  https://github.com/HariSekhon/DevOps-Bash-tools
 #
@@ -24,23 +24,34 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Disables a Jenkins job/pipeline via the Jenkins API
+Disables all Jenkins jobs/pipelines with names matching a given regex via the Jenkins API
 
 Tested on Jenkins 2.319 and 2.246
 
-Uses the adjacent jenkins_api.sh - see there for authentication details
+Remember to quote the job name regex filter to stop it matching your local files eg. '.*' to not match '. .. .envrc'
+
+Uses the adjacent jenkins_job_disable.sh jenkins_api.sh - see there for authentication details
 "
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args="<job_name> [<curl_options>]"
+usage_args="<job_name_regex_filter> [<curl_options>]"
 
 help_usage "$@"
 
 min_args 1 "$@"
 
-job="$1"
+if [[ "$*" =~ \.\ \.\. ]]; then
+    die "You've specified an unquoted .* that has match . and .. directories - remember to quote your regex!"
+fi
+
+job_name_regex_filter="$1"
 shift || :
 
-timestamp "Disabling Jenkins job '$job'"
-"$srcdir/jenkins_api.sh" "/job/$job/disable" -X POST "$@"
+timestamp "Getting job list"
+"$srcdir/jenkins_jobs.sh" "$@" |
+while read -r job_name; do
+    if [[ "$job_name" =~ $job_name_regex_filter ]]; then
+        "$srcdir/jenkins_job_disable.sh" "$job_name" "$@"
+    fi
+done
