@@ -48,6 +48,21 @@ alias gbs="gcloud builds submit --tag"
 alias bqq="bq query"
 alias gssh="gcloud compute ssh"
 
+# open GCP Console in the current project and preferably on a relevant page if we can detect one
+gcpcon(){
+    local project
+    local path
+    # open in the compute instances page if we don't know where else to go
+    path="compute/instances"
+    if [[ "$PWD" =~ kubernetes|k8 ]]; then
+        path="kubernetes/list/overview"
+    elif [[ "$PWD" =~ iam ]]; then
+        path="iam-admin/iam"
+    fi
+    project="${CLOUDSDK_CORE_PROJECT:-$(gcloud config get core.project 2>/dev/null)}"
+    open "https://console.cloud.google.com/$path?project=$project"
+}
+
 # when switching an alias to a function during re-source without un-aliasing, declare function explicitly to avoid errors
 function gcloudconfig(){
     # configurations are usually called the same as the project name so export GOOGLE_PROJECT_ID for convenience too
