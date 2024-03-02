@@ -46,6 +46,25 @@ export TRAP_SIGNALS="INT QUIT TRAP ABRT TERM EXIT"
 # but this works
 export LANG=en_US.UTF-8
 
+open(){
+    if is_mac; then
+        command open "$@"
+    elif type -P xdg-open &>/dev/null; then
+        xdg-open "$@"
+    elif sensible-browser &>/dev/null; then
+        sensible-browser "$@"
+    elif x-www-browser &>/dev/null; then
+        x-www-browser "$@"
+    elif gnome-open &>/dev/null; then
+        gnome-open "$@"
+    else
+        echo "Neither 'xdg-open' nor 'sensible-browser' were found in \$PATH - install one of them to automatically open this URL:"
+        echo
+        echo "$*"
+        echo
+    fi
+}
+
 if [ -z "${run_count:-}" ]; then
     run_count=0
 fi

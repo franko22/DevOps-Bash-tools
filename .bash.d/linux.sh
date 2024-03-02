@@ -28,6 +28,23 @@ bash_tools="${bash_tools:-$(dirname "${BASH_SOURCE[0]}")/..}"
 
 is_linux || return
 
+open(){
+    if type -P xdg-open &>/dev/null; then
+        xdg-open "$@"
+    elif sensible-browser &>/dev/null; then
+        sensible-browser "$@"
+    elif x-www-browser &>/dev/null; then
+        x-www-browser "$@"
+    elif gnome-open &>/dev/null; then
+        gnome-open "$@"
+    else
+        echo "Neither 'xdg-open' nor 'sensible-browser' were found in \$PATH - install one of them to automatically open this URL:"
+        echo
+        echo "$*"
+        echo
+    fi
+}
+
 alias reloadXdefaults="xrdb ~/.Xdefaults"
 
 #setxkbmap us
