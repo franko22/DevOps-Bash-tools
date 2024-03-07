@@ -152,6 +152,7 @@ lolcat
 lynx
 #lzo
 #lz4
+m4  # classic macro processor
 #makedepend  # Makefile dependencies for C
 #maven
 maven-completion
@@ -193,6 +194,7 @@ pinentry-mac
 pip-completion
 pipx
 #pk11-kit
+pluto  # by FairwindsOps - detect outdated Kubernetes API objects
 postgresql
 prestosql
 #protobuf
@@ -236,6 +238,7 @@ sslscan
 ssh-copy-id
 stats  # fancier Activity Monitor
 #subversion  # pulls in brew version of Perl which breaks library installations due to this horror - https://github.com/toddr/IO-Tty/issues/25
+#terraformer  # large, install only if actively using
 tfenv  # Terraform version manager inspired by rbenv
 tfsec  # Terraform static analysis by AquaSec
 thrift
@@ -255,6 +258,7 @@ watch
 #wget  # in brew-packages.txt
 #whois  # in brew-packages.txt
 wireshark  # only install tshark CLI, must --cask for Wireshark
+xclip
 #x264
 #x265
 #xvid
