@@ -78,10 +78,17 @@ tmpfile="shredfile.binary"
 
 trap_cmd "if [ -f \"$tmpfile\" ]; then timestamp 'Removing tmpfile \"$tmpfile\"'; rm -f \"$tmpfile\"; fi"
 
+# mac can use 1m or 1M but Linux dd requires 1M capitalized
+#bs='1m'
+#if uname -s | grep -q Darwin; then
+#    bs='1M'
+#fi
+
 timestamp "Writing tmpfile '$PWD/$tmpfile'"
 for (( i = 0; i < passes; i++ )); do
     timestamp "overwrite pass 1..."
-    dd if=/dev/urandom of="shredfile.binary" || :  # will hit out of space error and error out otherwise
+    # use 1M capitalized for compatibility with both Linux and Mac
+    dd if=/dev/urandom of="shredfile.binary" bs="1M" || :  # will hit out of space error and error out otherwise
     timestamp "Removing tmpfile '$tmpfile'"
     rm -f "$tmpfile"
 done
