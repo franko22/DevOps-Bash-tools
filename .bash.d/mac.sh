@@ -59,6 +59,21 @@ fi
 #export TERM=linux
 #ulimit -u 512
 
+dhcprenew(){
+    local interface="${1:-en0}"
+    watch -q 1 ifconfig "$interface"
+    sudo scutil <<< "add State:/Network/Interface/$interface/RefreshConfiguration temporary"
+    watch ifconfig "$interface"
+}
+
+dhcpdiscover(){
+    local interface="${1:-en0}"
+    watch -q 1 ifconfig "$interface"
+    sudo ipconfig set "$interface" BOOTP
+    sudo ipconfig set "$interface" DHCP
+    watch ifconfig "$interface"
+}
+
 macsleep(){
     sudo pmset sleepnow
 }

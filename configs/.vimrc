@@ -1,8 +1,16 @@
+"  vim:ts=4:sts=4:sw=4:tw=0:et
 "
 "  Author: Hari Sekhon
 "  Date: 2006-07-01 22:52:16 +0100 (Sat, 01 Jul 2006)
 "
-"  vim:ts=4:sts=4:sw=4:tw=0:et
+"  https://github.com/HariSekhon/DevOps-Bash-tools
+"
+"  License: see accompanying Hari Sekhon LICENSE file
+"
+"  If you're using my code you're welcome to connect with me on LinkedIn
+"  and optionally send me feedback to help steer this or other code I publish
+"
+"  https://www.linkedin.com/in/HariSekhon
 "
 
 " ============================================================================ "
@@ -23,6 +31,7 @@ syn on
 highlight StatusLine ctermfg=yellow ctermbg=darkgray
 highlight StatusLineNC ctermfg=darkgrey ctermbg=yellow
 highlight VertSplit ctermfg=darkgrey ctermbg=yellow
+"set statusline=%f\ %h%w%m%r\ %=%-14.(%l,%c%V%)\ %P
 
 set visualbell
 
@@ -40,7 +49,7 @@ set et      " expandtab
 set ic      " ignorecase
 set is      " incsearch
 "set list   " visually displays eol, tabs etc so you can always see them
-set ls=1    " laststatus - Status line 0=off, 1=multi-windows, 2=on
+set ls=2    " laststatus - Status line 0=off, 1=multi-windows, 2=on
 set listchars=tab:>-,eol:$,trail:.,extends:# " changes the list characters, makes tabs appear as >---
 set ml      " modeline - respect the vim: stuff at the stop of files, often off for root
 set mls=15  " modelines - Controls how many lines to check for modeline, systems often set this to 0
@@ -238,7 +247,8 @@ nmap          ;[ :w<CR> :call GitPush() <CR>
 nmap          ;, :w<CR> :s/^/</ <CR> :s/$/>/ <CR>
 " write then grep all URLs that are not mine, followed by all URLs that are mine in reverse order to urlview
 " this is so that 3rd party URLs followed by my URLs from within the body of files get higher priority than my header links
-nmap <silent> ;u :w<CR> :! bash -c 'grep -vi harisekhon "%" ; grep -i harisekhon "%" \| tail -r' \| urlview <CR> :<CR>
+"nmap <silent> ;u :w<CR> :! bash -c 'grep -vi harisekhon "%" ; grep -i harisekhon "%" \| tail -r' \| urlview <CR> :<CR>
+nmap <silent> ;u :w<CR> :! bash -c '{ urlextract.sh "%" ; terraform_registry_url_extract.sh "%"; } \| terraform_registry_url_to_https.sh \| lines_to_end.sh harisekhon \| urlview' <CR> :<CR>
 " pass current line as stdin to urlview to quickly go to this url
 " messes up interactive vim (disables vim's arrow keys) - calling a terminal reset fixes it
 "nmap <silent> ;U :.w !urlview<CR><CR> :!reset<CR><CR>
@@ -371,9 +381,9 @@ if has('autocmd')
     " TODO: often these don't trigger on window switching between different file types
 
     " %:t = basename of file
-    au BufNew,BufRead .bash*,*.sh,*.ksh   nmap ;l :w<CR>:!clear; cd "%:p:h" && shellcheck -x -Calways "%:t" \| more -R<CR>
+    au BufNew,BufRead .bash*,*.sh,*.ksh   nmap ;l :w<CR>:!clear; cd "%:p:h" && shellcheck -x -Calways "%:t" \| less -FR<CR>
     " for scripts that don't end in .sh like Google Cloud Shell's .customize_environment
-    au FileType sh                        nmap ;l :w<CR>:!clear; cd "%:p:h" && shellcheck -x -Calways "%:t" \| more -R<CR>
+    au FileType sh                        nmap ;l :w<CR>:!clear; cd "%:p:h" && shellcheck -x -Calways "%:t" \| less -FR<CR>
 
     au BufNewFile,BufRead .vimrc    nmap ;l :w<CR> :!clear<CR> :call LintVimrc() <CR>
 
@@ -381,7 +391,7 @@ if has('autocmd')
     au BufNew,BufRead *.csv        nmap ;l :w<CR>:!clear; validate_csv.py "%"<CR>
     au BufNew,BufRead *.cson       nmap ;l :w<CR>:!clear; validate_cson.py "%"<CR>
     au BufNew,BufRead *.d2         nmap ;l :w<CR>:!clear; d2 fmt "%" <CR> :edit <CR> :1s/^# \!\//#\!\// <CR>
-    au BufNew,BufRead *.json       nmap ;l :w<CR>:!clear; validate_json.py "%"; echo; check_json.sh "%" \| more -R<CR>
+    au BufNew,BufRead *.json       nmap ;l :w<CR>:!clear; validate_json.py "%"; echo; check_json.sh "%" \| less -FR<CR>
     au BufNew,BufRead *.ini        nmap ;l :w<CR>:!clear; validate_ini.py "%"; validate_ini2.py "%"<CR>
     " doesn't work on ansible inventory anyway
     "au FileType       ini          nmap ;l :w<CR>:!clear; validate_ini.py "%"; validate_ini2.py "%"<CR>
@@ -391,9 +401,9 @@ if has('autocmd')
     au BufNew,BufRead *.plist      nmap ;l :w<CR>:!clear; plutil -convert xml1 "%" && echo PList OK<CR>
     au BufNew,BufRead *.properties nmap ;l :w<CR>:!clear; validate_properties.py "%"<CR>
     au BufNew,BufRead *.ldif       nmap ;l :w<CR>:!clear; validate_ldap_ldif.py "%"<CR>
-    au BufNew,BufRead *.md         nmap ;l :w<CR>:!clear; mdl "%" \| more -R<CR>
-    "au BufNew,BufRead *.sql        nmap ;l :w<CR>:!clear; TODO "%" \| more -R<CR>
-    au BufNew,BufRead *.scala      nmap ;l :w<CR>:!clear; scalastyle -c "$bash_tools/scalastyle_config.xml" "%" \| more -R<CR>
+    au BufNew,BufRead *.md         nmap ;l :w<CR>:!clear; mdl "%" \| less -FR<CR>
+    "au BufNew,BufRead *.sql        nmap ;l :w<CR>:!clear; TODO "%" \| less -FR<CR>
+    au BufNew,BufRead *.scala      nmap ;l :w<CR>:!clear; scalastyle -c "$bash_tools/scalastyle_config.xml" "%" \| less -FR<CR>
     au BufNew,BufRead *.toml       nmap ;l :w<CR>:!clear; validate_toml.py "%"<CR>
     au BufNew,BufRead *.xml        nmap ;l :w<CR>:!clear; validate_xml.py "%"<CR>
     " TODO: needs fix to allow multiple inline yaml docs in 1 file
@@ -406,28 +416,28 @@ if has('autocmd')
     au BufNew,BufRead *.pkr.hcl,*.pkr.json nmap ;f :w<CR>:!packer fmt -diff "%" <CR>
 
     " more specific matches like pom.xml need to come after less specific matches like *.xml as last statement wins
-    au BufNew,BufRead *pom.xml*      nmap ;l :w<CR>:!clear; mvn validate -f "%" \| more -R<CR>
+    au BufNew,BufRead *pom.xml*      nmap ;l :w<CR>:!clear; mvn validate -f "%" \| less -FR<CR>
     " check_makefiles.sh is in this repo which should be added to $PATH
-    au BufNew,BufRead *Makefile*     nmap ;l :w<CR>:!clear; check_makefiles.sh "%" \| more -R<CR>
-    au BufNew,BufRead *build.gradle* nmap ;l :w<CR>:!clear; gradle -b "%" -m clean build \| more -R<CR> | nmap ;r :!gradle -b "%" clean build<CR>
-    au BufNew,BufRead *build.sbt*    nmap ;l :w<CR>:!clear; cd "%:p:h" && echo q \| sbt reload "%" \| more -R<CR>
-    au BufNew,BufRead *.travis.yml*  nmap ;l :w<CR>:!clear; travis lint "%" \| more -R<CR>
+    au BufNew,BufRead *Makefile*     nmap ;l :w<CR>:!clear; check_makefiles.sh "%" \| less -FR<CR>
+    au BufNew,BufRead *build.gradle* nmap ;l :w<CR>:!clear; gradle -b "%" -m clean build \| less -FR<CR> | nmap ;r :!gradle -b "%" clean build<CR>
+    au BufNew,BufRead *build.sbt*    nmap ;l :w<CR>:!clear; cd "%:p:h" && echo q \| sbt reload "%" \| less -FR<CR>
+    au BufNew,BufRead *.travis.yml*  nmap ;l :w<CR>:!clear; travis lint "%" \| less -FR<CR>
     au BufNew,BufRead serverless.yml nmap ;l :w<CR>:!clear; cd "%:p:h" && serverless print<CR>
-    au BufNew,BufRead *Dockerfile*   nmap ;l :w<CR>:!clear; hadolint "%" \| more -R<CR>
-    au BufNew,BufRead *docker-compose*.y*ml nmap ;l :w<CR>:!clear; docker-compose -f "%" config \| more -R<CR>
-    au BufNew,BufRead *Jenkinsfile*  nmap ;l :w<CR>:!clear; check_jenkinsfiles.sh "%" \| more -R<CR>
+    au BufNew,BufRead *Dockerfile*   nmap ;l :w<CR>:!clear; hadolint "%" \| less -FR<CR>
+    au BufNew,BufRead *docker-compose*.y*ml nmap ;l :w<CR>:!clear; docker-compose -f "%" config \| less -FR<CR>
+    au BufNew,BufRead *Jenkinsfile*  nmap ;l :w<CR>:!clear; check_jenkinsfiles.sh "%" \| less -FR<CR>
     " vagrant validate doesn't take an -f argument so it must be an exact match in order to validate the right thing
     " otherwise you will get an error or false positive
     au BufNew,BufRead Vagrantfile    nmap ;l :w<CR>:!clear; cd "%:p:h" && vagrant validate<CR>
-    au BufNew,BufRead *.circleci/config.yml*  nmap ;l :w<CR>:!clear; check_circleci_config.sh \| more -R<CR>
-    au BufNew,BufRead *circleci_config.yml*   nmap ;l :w<CR>:!clear; check_circleci_config.sh \| more -R<CR>
+    au BufNew,BufRead *.circleci/config.yml*  nmap ;l :w<CR>:!clear; check_circleci_config.sh \| less -FR<CR>
+    au BufNew,BufRead *circleci_config.yml*   nmap ;l :w<CR>:!clear; check_circleci_config.sh \| less -FR<CR>
     au BufNew,BufRead .pylintrc      nmap ;l :w<CR>:!clear; pylint ./*.py<CR>
 
     " if a "lint:" header is found then run lint.sh - this allows for more complex file types like Kubernetes yaml
     " which can then be linted for yaml as well as k8s schema
     " XXX: this is overriding all linting regardless of this expansion - instead use a different hotkey L for fast vs full linting
     "if filereadable(expand("%:p")) && match(readfile(expand("%:p")),"lint:")
-    "    au BufNew,BufRead *  nmap ;l :w<CR>:!clear; lint.sh "%" \| more -R<CR>
+    "    au BufNew,BufRead *  nmap ;l :w<CR>:!clear; lint.sh "%" \| less -FR<CR>
     "endif
 endif
 
@@ -739,12 +749,12 @@ function! TerraformValidate()
     " remove terraform plan copy-pasted removals for fast backporting
     :%s/^[[:space:]]*[-~][[:space:]]//e
     :%s/[[:space:]]->[[:space:]].*$//e
-    :!clear; bash -c 'if [ -d "%:p:h"/.terraform ]; then cd "%:p:h"; fi; { terraform fmt -diff; terraform validate; } | more -R'
+    :!clear; bash -c 'if [ -d "%:p:h"/.terraform ]; then cd "%:p:h"; fi; { terraform fmt -diff; terraform validate; } | less -FR'
 endfunction
 
 function! TerragruntValidate()
     :%s/[[:space:]]->[[:space:]].*$//e
-    :!clear; bash -c 'if [ -d "%:p:h"/.terraform ]; then cd "%:p:h"; fi; { terragrunt hclfmt --terragrunt-diff; terragrunt validate; } | more -R'
+    :!clear; bash -c 'if [ -d "%:p:h"/.terraform ]; then cd "%:p:h"; fi; { terragrunt hclfmt --terragrunt-diff; terragrunt validate; } | less -FR'
 endfunction
 
 function! TerraformPlan()

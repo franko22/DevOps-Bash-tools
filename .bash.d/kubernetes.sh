@@ -42,7 +42,7 @@ fi
 # unreliable that HOME is set, ensure shell evaluates to the right thing before we use it
 [ -n "${HOME:-}" ] || HOME=~
 
-add_PATH "${KREW_ROOT:-$HOME/.krew}"
+add_PATH "${KREW_ROOT:-$HOME/.krew/bin}"
 
 for x in "$bash_tools"/kubernetes*.sh; do
     x="${x##*/}"
@@ -513,7 +513,7 @@ watchpods(){
 }
 
 kdesc(){
-    k describe "$@"
+    k describe "$@" | less
 }
 
 # kdesc pod with grep filter on name for fast describing a pod in the current or given namespace

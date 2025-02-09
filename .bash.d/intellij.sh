@@ -108,6 +108,11 @@ idea(){
     idea_bg_disown "$@"
 }
 
+idearoot(){
+    idea "$(git_root)"
+}
+alias idear=idearoot
+
 # if a file does not already exist then IntelliJ opens it in a new light IDE instead of in the current project
 touch_idea(){
     touch "$@"

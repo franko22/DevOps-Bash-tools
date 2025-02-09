@@ -32,7 +32,7 @@ alias p="ping"
 pingwait="-w"
 is_mac && pingwait="-W"
 
-alias ping_google="while true; do ping www.google.com && break; sleep 1 || break; done"
+alias ping_google="while true; do ping www.google.com && sleep 1 || break; done"
 alias g=ping_google
 
 # watch_url.pl is in DevOps-Perl-tools repo which should be in $PATH
@@ -170,7 +170,7 @@ halfopen(){
 
 get_gw(){
     local gw
-    gw="$(netstat -rn | awk '/^default/ {print $2;exit}')"
+    gw="$(netstat -rn | awk '/^default.*\./ {print $2;exit}')"
     if [ -z "$gw" ]; then
         echo "Could not find gateway, no default route! " >&2
         return 1

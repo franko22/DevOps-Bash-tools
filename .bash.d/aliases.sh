@@ -121,6 +121,8 @@ alias rr='newshell'
 
 alias record=script
 
+alias dl=youtube_download_video.sh
+
 alias l33tmode='welcome; retmode=on; echo l33tm0de on'
 alias leetmode=l33tmode
 
@@ -151,7 +153,7 @@ alias lR='ls -lRh $LS_OPTIONS'
 lw(){ ls -lh $LS_OPTIONS "$(type -P "$@")"; }
 
 # shellcheck disable=SC2086,SC2012
-lll(){ ls -l $LS_OPTIONS "$(readlink -f "${@:-.}")" | less -R; }
+lll(){ ls -l "$(readlink -f "${@:-.}")" | less -R; }
 
 alias cd..='cd ..'
 alias ..='cd ..'
@@ -352,6 +354,9 @@ export desktop=~/Desktop
 export desk="$desktop"
 alias desktop='cd "$desktop"'
 alias desk=desktop
+
+export screenshots=~/Desktops/Screenshots
+alias screenshots='cd "$screenshots"'
 
 export bin=~/bin
 alias bin="cd $bin"
