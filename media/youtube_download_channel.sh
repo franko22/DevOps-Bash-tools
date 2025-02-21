@@ -22,7 +22,9 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Uses yt-dlp to download an entire YouTube channel of videos
+Downloads all videos from an entire YouTube channel using yt-dlp
+
+Installs yt-dlp (for downloading) and ffmpeg (for conversions) via OS package manager if not already installed
 "
 
 # used by usage() in lib/utils.sh
@@ -33,7 +35,44 @@ help_usage "$@"
 
 min_args 1 "$@"
 
+#"$srcdir/../packages/install_packages_if_absent.sh" yt-dlp ffmpeg
+
+# in case installed manually but not in package manager
+for cmd in yt-dlp ffmpeg; do
+    if ! type -P "$cmd" &>/dev/null; then
+        timestamp "$cmd not found in \$PATH, attempting to install..."
+        echo
+        "$srcdir/../packages/install_packages.sh" "$cmd"
+        echo
+    fi
+    check_bin "$cmd"
+done
+
 # https://github.com/yt-dlp/yt-dlp#output-template
 
-#yt-dlp -f mp4 -cw -o "%(upload_date)s - %(title)s.%(ext)s" -v "$1"
-yt-dlp -f mp4 -cw -o "%(autonumber)s - %(title)s.%(ext)s" -v "$1"
+#yt-dlp -f mp4 -c -w -o "%(upload_date)s - %(title)s.%(ext)s" -v "$1"
+
+# -c --continue
+# -w --no-overwrite
+# -o --output format file name
+# -v --verbose (debug output)
+#
+# --format mp4 \
+#
+# --format best - results in poor quality video in testing due to video only and audio only combinations
+#
+# --format "bestvideo+bestaudio/best" - unfortunately this results in a file that macOS QuickTime can't open natively
+#                                       (although VLC can but then VLC was always the best)
+#
+#       bestvideo+bestaudio: downloads the best video and audio streams separately and merges them (requires ffmpeg or avconv)
+#       /best: falls back to the best single file if the video+audio combination isn't available
+#
+# for maximum compatibility specify compatible formats
+yt-dlp \
+    --format "bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[ext=mp4]" \
+    --merge-output-format mp4 \
+    --continue \
+    --no-overwrite \
+    --output "%(autonumber)s - %(title)s.%(ext)s" \
+    ${DEBUG:+--verbose} \
+    "$1"

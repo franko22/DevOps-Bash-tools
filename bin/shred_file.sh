@@ -57,13 +57,14 @@ on Linux:
 
 # used by usage() in lib/utils.sh
 # shellcheck disable=SC2034
-usage_args=" [<filename> <passes>]"
+usage_args="<filename> [<passes>]"
 
 help_usage "$@"
 
+min_args 1 "$@"
 max_args 2 "$@"
 
-file="${1:-.}"
+file="$1"
 passes="${2:-7}"
 
 if ! [ -f "$file" ]; then

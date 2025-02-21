@@ -58,7 +58,7 @@ fi
 # since we now strip ```code``` blocks we must ensure that they match otherwise this code cannot
 # reliably run as it'll result in stripping out valid headings
 
-if [ "$(( $(grep -c '^```' "$markdown_file") % 2))" != 0 ]; then
+if [ "$(( $(grep -c '^[[:space:]]*```' "$markdown_file") % 2))" != 0 ]; then
     die "Error - uneven number of code blocks found in file: $markdown_file"
 fi
 
@@ -66,7 +66,7 @@ fi
 # tail -n +2 takes off the first line which is the header we definitely don't want in the index
 # false positive
 # shellcheck disable=SC2016
-sed '/^```/,/^```/d' "$markdown_file" |
+sed '/^[[:space:]]*```/,/^[[:space:]]*```/d' "$markdown_file" |
 # strip out oneline html comment because next sed will strip to end of file otherwise
 sed '/<!--.*-->/d;' |
 # strip out <!-- commented out --> sections
@@ -97,7 +97,7 @@ while read -r line; do
             # strip anchor prefixes
             s/^##* //;
             # change text links like [ZooKeeper](zookeeper.md) to just ZooKeeper
-            s/\[\([[:alnum:]]*\)\]([[:alnum:]#.-]*)/\1/g;
+            s/\[\([^]]\+\)\]([[:alnum:]:\/#?.=-]\+)/\1/g;
         ' <<< "$line")"
         # create relative links of just the anchor and not the repo URL prefix, it's more portable
         link="$(

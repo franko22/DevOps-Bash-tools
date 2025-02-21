@@ -26,8 +26,45 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
+is_git_repo(){
+    local target=${1:-.};
+    if [ -d "$target/.git" ]; then
+        return 0;
+    else
+        if [ -f "$target" ] && [ -d "${target%/*}/.git" ]; then
+            return 0;
+        else
+            if [ -d "$target" ]; then
+                pushd "$target" > /dev/null || return 1;
+                if git status >&/dev/null; then
+                    popd >&/dev/null;
+                    return 0;
+                fi;
+            else
+                pushd "$(dirname "$target")" > /dev/null || return 1;
+                if git status >&/dev/null; then
+                    popd >&/dev/null;
+                    return 0;
+                fi;
+            fi;
+            popd >&/dev/null;
+            return 2;
+        fi;
+    fi
+}
+
 git_repo(){
-    git remote -v 2>/dev/null |
+    # give preference for origin, then GitHub, GitLab, Bitbucket, Azure DevOps in that order
+    local remotes
+    remotes="$( git remote -v 2>/dev/null)"
+    {
+        awk 'BEGIN {IGNORECASE=1} $1 ~ /origin/ {print}' <<< "$remotes"
+        awk 'BEGIN {IGNORECASE=1} $1 ~ /github/ {print}' <<< "$remotes"
+        awk 'BEGIN {IGNORECASE=1} $1 ~ /gitlab/ {print}' <<< "$remotes"
+        awk 'BEGIN {IGNORECASE=1} $1 ~ /bitbucket/ {print}' <<< "$remotes"
+        awk 'BEGIN {IGNORECASE=1} $1 ~ /azure/ {print}' <<< "$remotes"
+        echo "$remotes"
+    } |
     awk '{print $2}' |
     head -n1 |
     sed '
@@ -36,6 +73,7 @@ git_repo(){
         s/[^:/]*[:/]//;
         s/\.git$//;
         s|^/||;
+        s|/[^/]*/_git/|/|;
     '
 }
 
@@ -132,6 +170,7 @@ foreachbranch(){
             continue
         fi
         echo "$branch:"
+        # shellcheck disable=SC2294
         if git branch | grep -Fq --color=auto "$branch"; then
             git checkout "$branch"
         else
