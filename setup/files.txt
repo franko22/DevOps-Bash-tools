@@ -36,6 +36,7 @@ configs/.Codefresh/cli-config/config.yaml
 configs/.config/flake8
 configs/.config/htop/htoprc
 configs/.config/pycodestyle
+configs/.config/terminalizer/config.yml
 configs/.config/yamllint/config
 configs/.customize_environment
 configs/.editorconfig
@@ -52,6 +53,7 @@ configs/.sawsrc
 configs/.screenrc
 configs/.sdkman/etc/config
 configs/.sqliterc
+configs/.tfdocs.d/.terraform-docs.yml
 configs/.tmux.conf
 configs/.toprc
 configs/.vimrc

@@ -22,9 +22,11 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
-Convert a Webp image to PNG to be usable on websites that don't support Webp images like Medium
+Converts a Webp image to PNG to be usable on websites that don't support Webp images like Medium
 
-Requires dwebp, attempts to install it if not found
+Opens the converted PNG image to verify it
+
+Requires either ImageMagick or dwebp to be installed, attempts to them in this order if not found
 "
 
 # used by usage() in lib/utils.sh
@@ -65,13 +67,14 @@ convert(){
         dwebp "webp" -o "$png"
         return 0
     fi
+    timestamp "No tool found installed to convert webp to png"
     return 1
 }
 
 if convert; then
     converted=1
 else
-    "$srcdir/../packages/install_packages.sh" imagemagik ||
+    "$srcdir/../packages/install_packages.sh" imagemagick ||
     "$srcdir/../packages/install_packages.sh" webp ||
     die "Failed to install any of the usual tools to convert Webp to PNG"
 
@@ -89,3 +92,6 @@ if [ "$converted" = 1 ]; then
 else
     die "Conversion failed"
 fi
+
+timestamp "Opening image: $png"
+"$srcdir/imageopen.sh" "$png"
