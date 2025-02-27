@@ -19,7 +19,7 @@ set -euo pipefail
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC1090,SC1091
-. "$srcdir/lib/utils.sh"
+. "$srcdir/lib/aws.sh"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
@@ -53,6 +53,9 @@ Find EC2 instances across regions:
     ${0##*/} aws ec2 describe-instances
 
     ${0##*/} 'aws ec2 describe-instances | jq -r \".Reservations | length\"'
+
+
+$usage_aws_cli_required
 "
 
 # used by usage() in lib/utils.sh
@@ -65,18 +68,27 @@ min_args 1 "$@"
 
 export AWS_DEFAULT_OUTPUT=json
 
-# --all-regions iterates all regions whether or not they are enabled for the current account
-if [ -n "${AWS_ALL_REGIONS:-}" ]; then
-    aws ec2 describe-regions --all-regions
-else
-    aws ec2 describe-regions
-fi |
-jq -r '.Regions[] | .RegionName' |
+regions="$(
+    # --all-regions iterates all regions whether or not they are enabled for the current account
+    if [ -n "${AWS_ALL_REGIONS:-}" ]; then
+        aws ec2 describe-regions --all-regions
+    else
+        aws ec2 describe-regions
+    fi |
+    jq -r '.Regions[] | .RegionName'
+)"
+
+total_regions="$(grep -c . <<< "$regions")"
+
+i=0
+
 while read -r region; do
+    (( i += 1 ))
     echo "# ============================================================================ #" >&2
-    echo "# AWS region = $region" >&2
+    echo "# ($i/$total_regions) AWS region = $region" >&2
     echo "# ============================================================================ #" >&2
     export AWS_DEFAULT_REGION="$region"
+    export AWS_REGION="$region"
     cmd=("$@")
     cmd=("${cmd[@]//\{region\}/$region}")
     # need eval'ing to able to inline quoted script
@@ -84,4 +96,4 @@ while read -r region; do
     eval "${cmd[@]}"
     echo >&2
     echo >&2
-done
+done <<< "$regions"

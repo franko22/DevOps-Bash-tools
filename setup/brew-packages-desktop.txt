@@ -37,12 +37,15 @@ https://raw.githubusercontent.com/jingweno/spotctl/master/Formula/spotctl.rb
 # Install HomeBrew Desktop packages - one per line
 ack
 act  # runs GitHub Actions locally
+agg  # converts asciicast terminal recording to gif
 amazon-ecs-cli
 #amazon-sam-cli  # no longer found
 ansible
 ansible-lint
+aria2  # optionally used by xcodes for downloading, supports resuming and segmented downloading
 archey4  # displays system info in text
 argocd
+asciinema  # records terminal to asciicast
 asdf
 #atomicparsley  # mp4 cli tool
 autoconf
@@ -65,6 +68,7 @@ clamav
 #clair  # container vulnerability scanner by quay.io - this is the server, not clairctl
 cliclick
 cmatrix
+cloc  # count lines of code - code / comment / blank
 colordiff
 colima  # CLI Docker container runtime (use 'docker' client after 'colima start')
 cosign
@@ -76,6 +80,7 @@ ctop  # container top
 #cyberduck  # GUI client for FTP, SFTP, WebDAV, Amazon S3, Google Drive etc.
 d2  # declarative diagram language
 dateutils  # strptime, dateadd, dateconv, datediff, dategrep, dateseq, datesort, datetest, datezone - https://www.fresse.org/dateutils/
+dbeaver-community
 dhcping
 dhcpdump
 dialog  # create a curses interactive menu
@@ -92,6 +97,7 @@ docker-compose-completion
 doctl  # Digital Ocean CLI
 dos2unix
 drone-cli
+duti  # displays or set the default application for a given file extension or URL
 e2fsprogs
 #ec2-api-tools
 eksctl
@@ -101,11 +107,14 @@ etcd
 exiftool  # view image metadata
 exiv2     # view image metadata
 #ext4fuse  # to read Linux partitions eg. on external hard drives
+fastlane  # for Mobile CI/CD development
 ffmpeg
 #filezilla  # GUI ftp client - not found
+firebase-cli
 fish
 flyscrape
 fortune
+fping  # scriptable fast ping for multiple hosts
 fswatch
 fzf
 gcc
@@ -133,6 +142,7 @@ haproxy
 helm
 hexyl  # hex command line viewer - https://github.com/sharkdp/hexyl
 htop
+httping  # ping-like tool for HTTP requests
 http-toolkit  # HTTP intercepting debugger
 hub
 hugo  # static website generator - https://gohugo.io/getting-started/quick-start/
@@ -143,6 +153,7 @@ imagemagick
 #inetutils  # GNU telnet, ftp, tftp, inetd, syslog, ping, traceroute, whois - prefixed with g
 infracost  # Cloud cost estimator for Terraform code
 ipcalc
+ioping  # monitor I/O latency in real-time
 iperf
 ipython
 #isc-dhcp  # the classic DHCP daemon, use for bootstrapping PXE installing Debian Linux or similar as per https://github.com/HariSekhon/Knowledge-Base/blob/main/dhcp.md
@@ -245,7 +256,7 @@ rdesktop
 #redis
 #readline  # in brew-packages.txt
 #restic  # backup program, tracks versions, backups to a local repo dir / SFTP / Restic server http(s) / S3 / GCS / MinIO / Rclone
-rlwrap
+rlwrap  # gives readline wrapping support (commonly used with Oracle SQL*Plus)
 #rtmpdump
 ruby  # Mac ruby is too old to install Travis CI
 ruby-completion
@@ -254,6 +265,7 @@ ruby-completion
 screen  # get newer version for -Q switch, will use different sockets directory
 s3cmd
 scalastyle
+scc  # Succinct Code Counter - lines and Cocomo man effort estimate
 semgrep
 siege
 #six  # Python 2 to 3 conversion
@@ -267,12 +279,14 @@ sonar-scanner
 sqlite
 sqlfluff  # linter
 sqlparse  # SQL reformatter
+squirrelsql
 ssllabs-scan
 sslscan
 ssh-copy-id
 stats  # fancier Activity Monitor
 #steghide  # looks like it's been removed
 #subversion  # pulls in brew version of Perl which breaks library installations due to this horror - https://github.com/toddr/IO-Tty/issues/25
+tcpping  # ping-like tool for TCP requests
 #terraform  # use tfenv with direnv to match your company's version and avoid accidentally upgrading the tfstate
 #terragrunt  # old, use install/install_terragrunt.sh to grab latest version to ~/bin instead
 #terraformer  # large, install only if actively using
@@ -281,8 +295,10 @@ tflint # Terraform linter
 tfsec  # Terraform static analysis by AquaSec
 thrift
 tidy-html5
-tree
 tmux
+tree
+ttygif  # records terminal and creates gif
+#ttyrec  # pulled as dependency of ttygif
 urlview  # used by tmux plugin tmux-urlview, and also my advanced .vimrc
 unix2dos
 #unrar  # no longer available
@@ -297,9 +313,11 @@ watch
 watchexec  # run commands when files change
 #wget  # in brew-packages.txt
 #whois  # in brew-packages.txt
+#windows-app  # replaces microsoft-remote-desktop
 wireshark  # only install tshark CLI, must --cask for Wireshark
 #webp
 xclip
+xcodesorg/made/xcodes
 #x264
 #x265
 #xvid

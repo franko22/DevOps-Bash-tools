@@ -155,6 +155,18 @@ github_result_has_more_pages(){
     return 0
 }
 
+# pass owner as first arg and then any other --options
+get_github_repo_urls(){
+    local owner="${1:-}"
+    gh repo list "$@" \
+        --limit 9999999 \
+        --json url \
+        --jq '.[].url'
+        # pass these from the client to retain flexibility
+        #--visibility public \
+        #--source \
+}
+
 get_github_repos(){
     local owner="${1:-}"
     if [ -z "$owner" ]; then
@@ -189,7 +201,7 @@ get_github_repo_branches(){
     local repo="$1"
     local page=1
     while true; do
-        if ! output="$("$srcdir_github_lib/../github_api.sh" "/repos/$repo/branches?page=$page&per_page=100")"; then
+        if ! output="$("$srcdir_github_lib/../github/github_api.sh" "/repos/$repo/branches?page=$page&per_page=100")"; then
             echo "ERROR" >&2
             exit 1
         fi

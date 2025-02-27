@@ -19,7 +19,7 @@ set -euo pipefail
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck disable=SC1090,SC1091
-. "$srcdir/lib/utils.sh"
+. "$srcdir/lib/aws.sh"
 
 # shellcheck disable=SC2034,SC2154
 usage_description="
@@ -42,6 +42,13 @@ eg.
 To set up your Kubernetes access to all clusters in all locally configured accounts using adjacent aws_kube_creds.sh script
 
     ${0##*/} aws_kube_creds.sh
+
+
+Beware that credentials left over in ~/.aws/credentials will be included as profiles and iterated on, you must
+comment them out in ~/.aws/credentials as well as in ~/.aws/config or \$AWS_CONFIG_FILE
+
+
+$usage_aws_cli_required
 "
 
 # used by usage() in lib/utils.sh
@@ -52,10 +59,16 @@ help_usage "$@"
 
 min_args 1 "$@"
 
-aws configure list-profiles --output text |
+profiles="$(aws configure list-profiles --output text)"
+
+total_profiles="$(grep -c . <<< "$profiles")"
+
+i=0
+
 while read -r profile; do
+    (( i += 1 ))
     echo "# ============================================================================ #" >&2
-    echo "# AWS profile = $profile" >&2
+    echo "# ($i/$total_profiles) AWS profile = $profile" >&2
     echo "# ============================================================================ #" >&2
     export AWS_PROFILE="$profile"
     cmd=("$@")
@@ -65,4 +78,4 @@ while read -r profile; do
     eval "${cmd[@]}"
     echo >&2
     echo >&2
-done
+done <<< "$profiles"

@@ -43,7 +43,7 @@ alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias dst="dockerhub_show_tags.py"
 # -l shows latest container, -q shows only ID
-alias dl='docker ps -lq'
+#alias dl='docker ps -lq'
 alias dockerimg='$EDITOR "$bash_tools/setup/docker-images.txt"'
 
 # wipe out exited containers
@@ -171,9 +171,8 @@ dockerrmall(){
 dockerrmigrep(){
     for x in "$@"; do
         docker images |
-        grep "$x" |
-        grep -v "<none>" |
-        awk '{print $1":"$2}' |
+        awk "/$x/{print \$1\":\"\$2}" |
+        sed '/<none>/d' |
         xargs -r docker rmi --
     done
 }

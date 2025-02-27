@@ -29,7 +29,7 @@ Ouptut:
 <instance_id>  <instance_name>  <volume_id>  <volume_name>  <volume_size_GB>  <device>  <encrypted>  <delete_on_termination>  <attached/detached>  <attached_time>
 
 
-$usage_aws_cli_required
+$usage_aws_cli_jq_required
 "
 
 # used by usage() in lib/utils.sh
@@ -45,6 +45,11 @@ while read -r instance_id instance_name; do
     #echo "Instance Name: $instance_name, Instance ID: $instance_id"
 
     timestamp "Getting volume list for EC2 instance: $instance_name"
+
+    if ! is_instance_id "$instance_id"; then
+        die "Invalid Instance ID passed into loop with instance name '$instance_name', failed regex validation: $instance_id"
+    fi
+
     # false positive
     # shellcheck disable=SC2016
     #volume_ids="$(aws ec2 describe-volumes --filters "Name=attachment.instance-id,Values=$instance_id" --query 'Volumes[*].[VolumeId, Tags[?Key==`Name`].Value|[0]]' --output text)"

@@ -76,9 +76,9 @@ fi
 #
 # used in client scripts
 # shellcheck disable=SC2034
-domain_regex='\b(([A-Za-z0-9](-?[A-Za-z0-9])*)\.)+[A-Za-z]{2,}\b'
+domain_regex='(([A-Za-z0-9](-?[A-Za-z0-9])*)\.)+[A-Za-z]{2,}'
 # shellcheck disable=SC2034
-email_regex='\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'
+email_regex='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
 # shellcheck disable=SC2034
 ip_regex='[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 # shellcheck disable=SC2034
@@ -290,6 +290,9 @@ get_arch(){
     if [ "$arch" = x86_64 ]; then
         arch=amd64  # files are conventionally usually named amd64 not x86_64
     fi
+    #if [ "$arch" = aarch64 ]; then
+    #    arch=arm64
+    #fi
     if [ -n "${ARCH_X86_64:-}" ]; then
         if [ "$arch" = amd64 ] || [ "$arch" = x86_64 ]; then
             arch="$ARCH_X86_64"
@@ -528,6 +531,7 @@ trap_debug_env(){
        ! type trap_function &>/dev/null &&
        type docker_image_cleanup &>/dev/null; then
         trap_function(){
+            # shellcheck disable=SC2317
             docker_image_cleanup
         }
     fi
@@ -567,6 +571,13 @@ read_secret(){
 }
 
 if is_mac; then
+    awk(){
+        # needed for awk -v IGNORECASE=1 to work for case insensitive regex
+        command gawk "$@"
+    }
+    grep(){
+        command ggrep "$@"
+    }
     readlink(){
         command greadlink "$@"
     }
@@ -742,7 +753,7 @@ stat_bytes(){
 }
 
 timestamp(){
-    printf "%s" "$(date '+%F %T')  $*" >&2
+    printf "%s  %s" "$(date '+%F %T')" "$*" >&2
     if [ $# -gt 0 ]; then
         printf '\n' >&2
     fi
@@ -1164,8 +1175,8 @@ num_args(){
 help_usage(){
     for arg; do
         case "$arg" in
-            -h|--help)  usage
-                        ;;
+            -h|-help|--help)  usage
+                              ;;
         esac
     done
 }
@@ -1200,7 +1211,6 @@ check_env_defined(){
         usage "\$$env not defined"
     fi
 }
-
 
 is_yes(){
     shopt -s nocasematch
@@ -1254,6 +1264,11 @@ is_port(){
     elif [ "$port" -gt 65535 ]; then
         return 1
     fi
+}
+
+is_url(){
+    local arg="$1"
+    [[ "$arg" =~ ^$url_regex$ ]]
 }
 
 exponential(){
@@ -1421,8 +1436,19 @@ file_modified_in_last_days(){
         return 1
     elif find "$file" -mtime -"$days" -print | grep -q .; then
         return 0
-    elif [ "$(stat -c '%Y' "$file")" -ge "$(date -d "$days days ago" '+%s')" ]; then
-        return 0
+    else
+        local days_ago_in_seconds
+        days_ago_in_seconds="$(date -d "$days days ago" '+%s')"
+        if is_mac; then
+            if [ "$(stat -f '%m' "$file")" -ge "$days_ago_in_seconds" ]; then
+                return 0
+            else
+                return 1
+            fi
+        elif [ "$(stat -c '%Y' "$file")" -ge "$days_ago_in_seconds" ]; then
+            return 0
+        else
+            return 1
+        fi
     fi
-    return 1
 }
